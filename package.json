@@ -9,9 +9,14 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "framer-motion": "^12.34.2",
+    "gsap": "^3.14.2",
+    "lenis": "^1.3.17",
     "next": "16.1.6",
     "react": "19.2.3",
-    "react-dom": "19.2.3"
+    "react-dom": "19.2.3",
+    "react-intersection-observer": "^10.0.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
