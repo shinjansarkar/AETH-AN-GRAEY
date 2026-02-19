@@ -7,9 +7,7 @@ export default function Preloader() {
 
     useEffect(() => {
         setMounted(true);
-        const timer = setTimeout(() => {
-            setHidden(true);
-        }, 2600);
+        const timer = setTimeout(() => setHidden(true), 2800);
         return () => clearTimeout(timer);
     }, []);
 
@@ -18,19 +16,10 @@ export default function Preloader() {
     return (
         <div id="preloader" className={hidden ? 'hidden' : ''}>
             <div className="preloader-logo">AETH AN GRAEY</div>
+            <div className="preloader-subtitle">The Architecture of Elegance</div>
             <div className="preloader-bar">
                 <div className="preloader-progress" />
             </div>
-            <p style={{
-                fontFamily: 'Montserrat, sans-serif',
-                fontSize: '0.55rem',
-                letterSpacing: '0.3em',
-                textTransform: 'uppercase',
-                color: 'var(--stone)',
-                marginTop: '1.5rem',
-            }}>
-                The Architecture of Elegance
-            </p>
         </div>
     );
 }
