@@ -1,10 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Preloader from '@/components/Preloader';
 import CursorGlow from '@/components/CursorGlow';
 import Navbar from '@/components/Navbar';
 import MarqueeBanner from '@/components/MarqueeBanner';
+import ShippingMap from '@/components/ShippingMap';
 
 /* ────────────────────────────────────────────────────────────────────
    DATA
@@ -18,7 +20,7 @@ const products = [
     best: 'Executives · Lawyers · Boardrooms',
     price: '€ 299',
     tag: 'Signature',
-    img: 'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=800&q=90&fit=crop&crop=center',
+    img: '/oxford-stand.png',
   },
   {
     id: 'signature-monk',
@@ -28,7 +30,7 @@ const products = [
     best: 'Style-conscious professionals',
     price: '€ 319',
     tag: 'Statement',
-    img: 'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=800&q=90&fit=crop&crop=center',
+    img: '/monk-stand.png',
   },
   {
     id: 'signature-chelsea',
@@ -38,7 +40,7 @@ const products = [
     best: 'Paris · Berlin aesthetic · Smart casual',
     price: '€ 329',
     tag: 'New',
-    img: 'https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=800&q=90&fit=crop&crop=center',
+    img: '/chelsea-boot-stand.jpg',
   },
 ];
 
@@ -47,19 +49,19 @@ const shoeTypes = [
     title: 'Oxford',
     sub: 'Authority in its purest form',
     tag: 'Most Formal',
-    img: 'https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=700&q=85&fit=crop&crop=center',
+    img: '/oxford.jpeg',
   },
   {
     title: 'Monk Strap',
     sub: 'Confidence with character',
     tag: 'Statement',
-    img: 'https://images.unsplash.com/photo-1603487742131-4160ec999306?w=700&q=85&fit=crop&crop=center',
+    img: '/monk-strap.jpg',
   },
   {
     title: 'Chelsea Boot',
     sub: 'Minimal. Sharp. Eternal.',
     tag: 'European Icon',
-    img: 'https://images.unsplash.com/photo-1638247025967-b4e38f787b76?w=700&q=85&fit=crop&crop=center',
+    img: '/chelsea-boot.jpeg',
   },
 ];
 
@@ -237,7 +239,7 @@ export default function Home() {
       <section className="philosophy-grid" id="about">
         <div className="philosophy-img reveal-fade">
           <img
-            src="https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=1000&q=90&fit=crop&crop=center"
+            src="https://images.unsplash.com/photo-1608256246200-53e635b5b65f?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Artisan crafting leather dress shoe"
           />
         </div>
@@ -306,7 +308,14 @@ export default function Home() {
                 style={{ transitionDelay: `${i * 0.1}s` }}
               >
                 <div className="product-card-img-wrap">
-                  <img src={p.img} alt={p.name} loading="lazy" />
+                  <Image
+                    src={p.img}
+                    alt={p.name}
+                    fill
+                    sizes="(max-width: 500px) 100vw, (max-width: 1100px) 50vw, 33vw"
+                    style={{ objectFit: 'cover', objectPosition: 'center', filter: 'saturate(0.92)' }}
+                    loading="lazy"
+                  />
                   <span className="product-card-tag">{p.tag}</span>
                   <div className="product-card-overlay">
                     <button
@@ -373,7 +382,7 @@ export default function Home() {
         onClick={() => scrollTo('about')}
       >
         <img
-          src="https://images.unsplash.com/photo-1614252369475-531eba835eb1?w=1920&q=88&fit=crop&crop=center"
+          src="https://images.unsplash.com/photo-1764636695674-2c4fde2381d6?q=80&w=1332&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="The Crockett & Jones Way — 100% Made in England"
           loading="lazy"
         />
@@ -540,26 +549,44 @@ export default function Home() {
           SECOND EDITORIAL BANNER — Bespoke process
           ══════════════════════════════════════════ */}
       <div
-        className="editorial-banner right-align"
+        className="editorial-banner"
         style={{ cursor: 'pointer' }}
         onClick={() => scrollTo('bespoke')}
       >
         <img
-          src="https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1920&q=88&fit=crop&crop=center"
+          src="https://images.unsplash.com/photo-1599568723850-14196ee0f991?q=80&w=1196&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="AETH AN GRAEY Winter collection"
           loading="lazy"
         />
-        <div className="editorial-banner-overlay">
-          <div className="editorial-banner-content" style={{ textAlign: 'right' }}>
-            <span className="editorial-eyebrow">The Bespoke Process</span>
-            <h2 className="editorial-title">
+        <div
+          className="editorial-banner-overlay"
+          style={{
+            background: 'linear-gradient(to bottom, rgba(20,18,14,0.18) 0%, rgba(20,18,14,0.55) 60%, rgba(20,18,14,0.72) 100%)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            paddingTop: '6vh',
+            textAlign: 'center',
+          }}
+        >
+          <div style={{ textAlign: 'center', maxWidth: '780px' }}>
+            <span className="editorial-eyebrow" style={{ textAlign: 'center', display: 'block', letterSpacing: '0.5em' }}>The Bespoke Process</span>
+            <h2
+              style={{
+                fontFamily: '"Bodoni Moda", Georgia, serif',
+                fontSize: 'clamp(2.8rem, 6.5vw, 8rem)',
+                fontWeight: 500,
+                lineHeight: 1.05,
+                letterSpacing: '-0.01em',
+                textAlign: 'center',
+                color: '#fff',
+                marginBottom: '2rem',
+                marginTop: '0.8rem',
+                textShadow: '0 2px 32px rgba(0,0,0,0.35)',
+              }}
+            >
               Your Vision.<br />My Hands.
             </h2>
-            <p className="editorial-body">
-              A bespoke shoe is an intimate collaboration. You bring the vision —
-              I bring fifteen years of atelier discipline and pure goat leather.
-            </p>
-            <button className="btn-primary" onClick={(e) => { e.stopPropagation(); scrollTo('bespoke'); }}>
+            <button className="btn-primary" style={{ margin: '0 auto' }} onClick={(e) => { e.stopPropagation(); scrollTo('bespoke'); }}>
               Learn More
             </button>
           </div>
@@ -572,7 +599,7 @@ export default function Home() {
       <section className="bespoke-grid" id="bespoke">
         <div className="bespoke-img reveal-fade">
           <img
-            src="https://images.unsplash.com/photo-1603487742131-4160ec999306?w=1000&q=90&fit=crop&crop=center"
+            src="https://images.unsplash.com/photo-1770198408387-7f45e5d6c056?q=80&w=687&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt="Monk Strap — AETH AN GRAEY bespoke detail"
           />
         </div>
@@ -660,7 +687,7 @@ export default function Home() {
               style={{ position: 'relative', overflow: 'hidden', aspectRatio: '4/5' }}
             >
               <img
-                src="https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=900&q=90&fit=crop&crop=center"
+                src="https://images.unsplash.com/photo-1650154281741-498255ad3513?q=80&w=735&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Fine grain goat leather Oxford close-up"
                 style={{ width: '100%', height: '100%', objectFit: 'cover', filter: 'saturate(0.75) contrast(1.1)' }}
               />
@@ -707,7 +734,7 @@ export default function Home() {
               </h2>
             </div>
             <div className="reveal-up stagger-2">
-              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.8rem', fontWeight: 300, color: '#5A5651', lineHeight: 2, marginBottom: '2rem' }}>
+              <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.8rem', fontWeight: 300, color: '#4A4642', lineHeight: 2, marginBottom: '2rem' }}>
                 Every shipment is Delivered Duty Paid — you pay nothing extra at customs.
                 Your shoes arrive like a letter from a friend, not a package from a bureaucracy.
               </p>
@@ -758,6 +785,10 @@ export default function Home() {
             placeholder="Your email address"
             className="newsletter-input"
             aria-label="Email address"
+            required
+            maxLength={254}
+            autoComplete="email"
+            spellCheck={false}
           />
           <button type="submit" className="newsletter-btn">Subscribe</button>
         </form>
@@ -775,8 +806,8 @@ export default function Home() {
           </div>
           <div className="footer-socials">
             <a href="mailto:hello@aethangraey.com" className="footer-social-link">Email</a>
-            <a href="#" className="footer-social-link">Instagram</a>
-            <a href="#" className="footer-social-link">Pinterest</a>
+            <a href="#" className="footer-social-link" aria-disabled="true" onClick={(e) => e.preventDefault()} style={{ opacity: 0.38, cursor: 'not-allowed' }}>Instagram</a>
+            <a href="#" className="footer-social-link" aria-disabled="true" onClick={(e) => e.preventDefault()} style={{ opacity: 0.38, cursor: 'not-allowed' }}>Pinterest</a>
           </div>
         </div>
 
@@ -847,57 +878,3 @@ export default function Home() {
   );
 }
 
-/* ────────────────────────────────────────────────────────────────────
-   Shipping Map
-   ──────────────────────────────────────────────────────────────────── */
-function ShippingMap() {
-  return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
-        <div>
-          <div style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.48rem', fontWeight: 500, letterSpacing: '0.4em', textTransform: 'uppercase', color: '#9A9590', marginBottom: '0.4rem' }}>
-            Atelier to Door
-          </div>
-          <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.7rem', fontWeight: 300, color: '#1A1916' }}>
-            India → Europe
-          </div>
-        </div>
-        <div style={{ display: 'flex', gap: '3rem' }}>
-          {[['7–14', 'Crafting Days'], ['DDP', 'Duty Free'], ['30+', 'EU Countries']].map(([val, label]) => (
-            <div key={label} style={{ textAlign: 'center' }}>
-              <div style={{ fontFamily: 'Jost, sans-serif', fontSize: '1rem', fontWeight: 400, color: '#1A1916', letterSpacing: '-0.01em' }}>{val}</div>
-              <div style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.42rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: '#9A9590', marginTop: '0.2rem' }}>{label}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <svg viewBox="0 0 600 220" style={{ width: '100%', height: 'auto' }} xmlns="http://www.w3.org/2000/svg">
-        <g stroke="#EBEBEB" strokeWidth="0.5">
-          {[80, 160, 240, 320, 400, 480, 560].map((x) => <line key={x} x1={x} y1="0" x2={x} y2="220" />)}
-          {[44, 88, 132, 176].map((y) => <line key={y} x1="0" y1={y} x2="600" y2={y} />)}
-        </g>
-        <g fill="#E8E6E2">
-          <ellipse cx="270" cy="95" rx="55" ry="42" opacity="0.7" />
-          <ellipse cx="400" cy="140" rx="28" ry="35" opacity="0.7" />
-          <ellipse cx="250" cy="160" rx="38" ry="48" opacity="0.5" />
-        </g>
-        <path d="M 396 138 C 360 114 320 102 272 98" stroke="#A8925A" strokeWidth="1.5" fill="none" strokeDasharray="5 4" opacity="0.8" />
-        <circle cx="396" cy="138" r="5" fill="#1A1916" />
-        <circle cx="396" cy="138" r="12" fill="none" stroke="#1A1916" strokeWidth="0.8" opacity="0.2">
-          <animate attributeName="r" from="7" to="20" dur="2.5s" repeatCount="indefinite" />
-          <animate attributeName="opacity" from="0.3" to="0" dur="2.5s" repeatCount="indefinite" />
-        </circle>
-        <text x="407" y="142" fontFamily="Jost, sans-serif" fontSize="7" fill="#2A2925" fontWeight="500" letterSpacing="1.5">INDIA</text>
-        <circle cx="272" cy="98" r="5" fill="#A8925A" />
-        <circle cx="272" cy="98" r="12" fill="none" stroke="#A8925A" strokeWidth="0.8" opacity="0.2">
-          <animate attributeName="r" from="7" to="20" dur="2.5s" repeatCount="indefinite" begin="1.2s" />
-          <animate attributeName="opacity" from="0.3" to="0" dur="2.5s" repeatCount="indefinite" begin="1.2s" />
-        </circle>
-        <text x="240" y="88" fontFamily="Jost, sans-serif" fontSize="7" fill="#2A2925" fontWeight="500" letterSpacing="1.5">EUROPE</text>
-        <rect x="312" y="103" width="52" height="18" fill="#1A1916" rx="0" />
-        <text x="338" y="115" fontFamily="Jost, sans-serif" fontSize="5.5" fill="#A8925A" letterSpacing="1.5" textAnchor="middle" fontWeight="500">DDP FREE</text>
-      </svg>
-    </div>
-  );
-}

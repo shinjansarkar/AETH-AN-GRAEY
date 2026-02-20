@@ -39,13 +39,16 @@ export default function Navbar() {
         <>
             {/* Fixed wrapper */}
             <div className="navbar-wrapper">
-                {/* Announcement bar */}
+                {/* Announcement bar — single line, collapses on scroll */}
                 <div
                     className="announcement-bar-fixed"
                     style={{
-                        maxHeight: announcementVisible ? '40px' : '0',
+                        maxHeight: announcementVisible ? '36px' : '0',
+                        paddingTop: announcementVisible ? undefined : '0',
+                        paddingBottom: announcementVisible ? undefined : '0',
                         overflow: 'hidden',
-                        transition: 'max-height 0.4s ease',
+                        transition: 'max-height 0.4s ease, padding 0.3s ease',
+                        pointerEvents: announcementVisible ? 'auto' : 'none',
                     }}
                 >
                     Free DDP Shipping to All EU Countries · Made to Order · 7–14 Days Crafting

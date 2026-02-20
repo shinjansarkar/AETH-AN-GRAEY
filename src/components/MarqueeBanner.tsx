@@ -2,25 +2,25 @@
 
 const items = [
     'Oxford',
-    '·',
+    '✦',
     'Monk Strap',
-    '·',
+    '✦',
     'Chelsea Boot',
-    '·',
+    '✦',
     'Pure Goat Leather',
-    '·',
+    '✦',
     'Handmade in India',
-    '·',
+    '✦',
     'Delivered DDP to Europe',
-    '·',
+    '✦',
     'One Artisan',
-    '·',
+    '✦',
     'Bespoke Craftsmanship',
-    '·',
+    '✦',
     'Three Signatures',
-    '·',
+    '✦',
     'No Assembly Lines',
-    '·',
+    '✦',
 ];
 
 export default function MarqueeBanner() {
@@ -33,15 +33,15 @@ export default function MarqueeBanner() {
                     key={i}
                     style={{
                         fontFamily: 'Jost, sans-serif',
-                        fontSize: item === '·' ? '0.7rem' : '0.5rem',
-                        fontWeight: item === '·' ? 300 : 400,
-                        letterSpacing: item === '·' ? '0.05em' : '0.3em',
+                        fontSize: item === '✦' ? '0.42rem' : '0.5rem',
+                        fontWeight: 400,
+                        letterSpacing: item === '✦' ? '0' : '0.3em',
                         textTransform: 'uppercase',
-                        color: item === '·'
+                        color: item === '✦'
                             ? '#A8925A'
                             : ['Oxford', 'Monk Strap', 'Chelsea Boot'].includes(item)
                                 ? '#1A1916'
-                                : '#9A9590',
+                                : '#7A7570',
                         marginRight: '2.2rem',
                         whiteSpace: 'nowrap',
                     }}
