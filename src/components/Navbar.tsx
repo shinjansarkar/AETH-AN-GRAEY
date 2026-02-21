@@ -84,7 +84,7 @@ export default function Navbar() {
                             </button>
                         ))}
                         <a
-                            href="mailto:hello@aethangraey.com?subject=Order%20Enquiry"
+                            href="mailto:contact@aethangraey.com?subject=Order%20Enquiry"
                             className="nav-cta"
                         >
                             Order Now
@@ -142,7 +142,7 @@ export default function Navbar() {
                         </a>
                     ))}
                     <a
-                        href="mailto:hello@aethangraey.com?subject=Order%20Enquiry"
+                        href="mailto:contact@aethangraey.com?subject=Order%20Enquiry"
                         className="mobile-nav-link accent-link"
                     >
                         Order Bespoke ↗

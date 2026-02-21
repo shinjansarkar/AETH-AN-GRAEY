@@ -22,6 +22,8 @@ const products = [
     tag: 'Signature',
     img: '/oxford-stand.png',
   },
+
+
   {
     id: 'signature-monk',
     name: 'Signature Monk Strap',
@@ -41,6 +43,16 @@ const products = [
     price: '€ 329',
     tag: 'New',
     img: '/chelsea-boot-stand.jpg',
+  },
+  {
+    id: 'signature-balmoral',
+    name: 'Signature Balmoral Boot',
+    material: 'Full-Grain Goat Leather',
+    desc: 'Lace-up · Ankle Height · Classic Profile',
+    best: 'Sharp dressers · Winter elegance',
+    price: '€ 349',
+    tag: 'Classic',
+    img: '/balmoral-stand.png',
   },
 ];
 
@@ -62,6 +74,12 @@ const shoeTypes = [
     sub: 'Minimal. Sharp. Eternal.',
     tag: 'European Icon',
     img: '/chelsea-boot.jpeg',
+  },
+  {
+    title: 'Balmoral Boot',
+    sub: 'The epitome of refined height',
+    tag: 'Modern Classic',
+    img: '/balmor-boot.jpeg',
   },
 ];
 
@@ -221,7 +239,7 @@ export default function Home() {
           ══════════════════════════════════════════ */}
       <div className="stats-row">
         {[
-          { num: '3', label: 'Signature Models' },
+          { num: '4', label: 'Signature Models' },
           { num: '15+', label: 'Hours per Pair' },
           { num: '100%', label: 'Pure Goat Leather' },
           { num: '1', label: 'Artisan. Always.' },
@@ -248,13 +266,13 @@ export default function Home() {
           <span className="section-label reveal-up">Philosophy</span>
           <div className="gold-rule reveal-up stagger-1" />
           <h2 className="philosophy-headline reveal-up stagger-1">
-            Three Models.<br /><em>One Standard.</em><br />No Compromise.
+            Four Models.<br /><em>One Standard.</em><br />No Compromise.
           </h2>
           <p className="philosophy-body reveal-up stagger-2">
             Luxury brands grow through curation, not volume. That is why AETH AN GRAEY
-            offers exactly three Signature Models — each one perfected over hundreds of
+            offers exactly four Signature Models — each one perfected over hundreds of
             iterations. No filler. No compromise. Just the Oxford, the Monk Strap,
-            and the Chelsea Boot.
+            the Chelsea Boot, and the Balmoral Boot.
           </p>
           <p className="philosophy-body reveal-up stagger-3">
             Every pair is hand-lasted, stitched, and finished by a single artisan.
@@ -288,7 +306,7 @@ export default function Home() {
                 Aeth An Graey
               </span>
               <h2 className="collection-headline reveal-up">
-                The Three Signatures
+                The Four Signatures
               </h2>
             </div>
             <div className="collection-nav reveal-up stagger-1">
@@ -296,11 +314,12 @@ export default function Home() {
               <span className="collection-nav-item">Oxford</span>
               <span className="collection-nav-item">Monk Strap</span>
               <span className="collection-nav-item">Chelsea Boot</span>
+              <span className="collection-nav-item">Balmoral Boot</span>
             </div>
           </div>
 
           {/* Product cards */}
-          <div className="product-grid product-grid-3">
+          <div className="product-grid">
             {products.map((p, i) => (
               <div
                 key={p.id}
@@ -442,7 +461,7 @@ export default function Home() {
                 Custom<br /><em>Lab.</em>
               </h2>
               <p className="custom-lab-body reveal-up stagger-2">
-                Begin with any of the three Signature Models. Then customise
+                Begin with any of the four Signature Models. Then customise
                 every detail — from toe shape to patina finish. The result is
                 uniquely, irreversibly yours.
               </p>
@@ -460,12 +479,13 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Three base models */}
+          {/* Four base models */}
           <div className="model-grid-dark reveal-up">
             {[
               { model: 'Oxford', price: '€ 299', note: 'From the boardroom outward.' },
               { model: 'Monk Strap', price: '€ 319', note: 'The European signature.' },
               { model: 'Chelsea Boot', price: '€ 329', note: 'Built for every season.' },
+              { model: 'Balmoral Boot', price: '€ 349', note: 'The epitome of refined height.' },
             ].map((m, i) => (
               <div
                 key={m.model}
@@ -483,7 +503,7 @@ export default function Home() {
           {/* CTAs */}
           <div className="reveal-up" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
             <a
-              href="mailto:hello@aethangraey.com?subject=Custom%20Lab%20Enquiry"
+              href="mailto:contact@aethangraey.com?subject=Custom%20Lab%20Enquiry"
               style={{
                 display: 'inline-flex',
                 alignItems: 'center',
@@ -612,7 +632,7 @@ export default function Home() {
           </h2>
           <p className="process-body reveal-up stagger-2" style={{ maxWidth: '380px', marginBottom: '2rem' }}>
             A bespoke shoe is an intimate collaboration. You bring the vision — I bring
-            fifteen years of atelier discipline and pure goat leather.
+            47+ years of atelier discipline and pure goat leather.
           </p>
 
           <div className="reveal-up stagger-3">
@@ -634,7 +654,7 @@ export default function Home() {
           </div>
 
           <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }} className="reveal-up stagger-5">
-            <a href="mailto:hello@aethangraey.com?subject=Bespoke%20Enquiry" className="btn-dark">
+            <a href="mailto:contact@aethangraey.com?subject=Bespoke%20Enquiry" className="btn-dark">
               Begin Enquiry
             </a>
             <button className="btn-ghost-dark" onClick={() => scrollTo('leather')}>
@@ -805,7 +825,7 @@ export default function Home() {
             <span className="footer-brand-tagline">The Architecture of Elegance</span>
           </div>
           <div className="footer-socials">
-            <a href="mailto:hello@aethangraey.com" className="footer-social-link">Email</a>
+            <a href="mailto:contact@aethangraey.com" className="footer-social-link">Email</a>
             <a href="#" className="footer-social-link" aria-disabled="true" onClick={(e) => e.preventDefault()} style={{ opacity: 0.38, cursor: 'not-allowed' }}>Instagram</a>
             <a href="#" className="footer-social-link" aria-disabled="true" onClick={(e) => e.preventDefault()} style={{ opacity: 0.38, cursor: 'not-allowed' }}>Pinterest</a>
           </div>
@@ -848,7 +868,7 @@ export default function Home() {
 
           <div>
             <div className="footer-col-title">Contact</div>
-            <a href="mailto:hello@aethangraey.com" className="footer-link">hello@aethangraey.com</a>
+            <a href="mailto:contact@aethangraey.com" className="footer-link">contact@aethangraey.com</a>
             <a href="#custom-lab" className="footer-link"
               onClick={(e) => { e.preventDefault(); scrollTo('custom-lab'); }}>
               Start Custom Enquiry
@@ -870,7 +890,7 @@ export default function Home() {
 
       {/* STICKY MOBILE CTA */}
       <div className="sticky-cta">
-        <a href="mailto:hello@aethangraey.com?subject=Custom%20Lab%20Enquiry" className="sticky-cta-btn">
+        <a href="mailto:contact@aethangraey.com?subject=Custom%20Lab%20Enquiry" className="sticky-cta-btn">
           ✦ &nbsp; Begin Custom Enquiry
         </a>
       </div>
