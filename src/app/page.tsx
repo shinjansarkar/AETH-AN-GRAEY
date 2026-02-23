@@ -186,9 +186,8 @@ export default function Home() {
           HERO — C&J editorial, full-bleed
           ══════════════════════════════════════════ */}
       <section
-        className="hero"
+        className="hero hero-offset"
         id="hero"
-        style={{ marginTop: 'calc(62px + 36px)' }}
       >
         <div className="hero-bg">
           <img
@@ -734,7 +733,7 @@ export default function Home() {
           ══════════════════════════════════════════ */}
       <section className="section-pad" id="shipping" style={{ background: '#F8F7F5' }}>
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '6vw', alignItems: 'center', marginBottom: '4rem' }}>
+          <div className="shipping-intro-grid">
             <div>
               <span className="section-label reveal-up">Logistics &amp; Trust</span>
               <div className="gold-rule reveal-up stagger-1" />
@@ -784,11 +783,6 @@ export default function Home() {
           </div>
         </div>
 
-        <style>{`
-          @media (max-width: 768px) {
-            #shipping > div > div:first-child { grid-template-columns: 1fr !important; }
-          }
-        `}</style>
       </section>
 
       {/* ══════════════════════════════════════════

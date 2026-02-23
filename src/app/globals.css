@@ -217,6 +217,14 @@ button {
   text-overflow: ellipsis;
 }
 
+@media (max-width: 480px) {
+  .announcement-bar-fixed {
+    font-size: 0.5rem;
+    letter-spacing: 0.1em;
+    padding: 0.45rem 0.5rem;
+  }
+}
+
 .navbar {
   background: var(--white);
   border-bottom: 1px solid var(--light-gray);
@@ -296,6 +304,12 @@ button {
 .nav-cta:hover {
   background: transparent;
   color: var(--black);
+}
+
+@media (max-width: 900px) {
+  .nav-cta {
+    display: none;
+  }
 }
 
 /* ============================================================
@@ -394,6 +408,27 @@ button {
   background: var(--black);
   /* Push below fixed navbar (62px announcement + 62px navbar) */
   margin-top: 0;
+}
+
+.hero-offset {
+  margin-top: calc(62px + 36px);
+  /* navbar height + announcement bar */
+}
+
+@media (max-width: 900px) {
+
+  /* Announcement bar is still visible but slightly shorter */
+  .hero-offset {
+    margin-top: calc(62px + 36px);
+  }
+}
+
+@media (max-width: 480px) {
+
+  /* Announcement bar collapses after scroll, but on page load it's short */
+  .hero-offset {
+    margin-top: calc(62px + 32px);
+  }
 }
 
 .hero-bg {
@@ -523,12 +558,32 @@ button {
 
 @media (max-width: 768px) {
   .hero-content {
-    padding: 0 5vw 8vh;
+    padding: 0 5vw 10vh;
     max-width: 100%;
   }
 
   .hero-title {
-    font-size: clamp(3rem, 14vw, 5.5rem);
+    font-size: clamp(2.8rem, 13vw, 5rem);
+  }
+
+  .hero-subtitle {
+    font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+    max-width: 100%;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .hero-actions .btn-primary,
+  .hero-actions .btn-secondary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-scroll {
+    display: none;
   }
 }
 
@@ -702,6 +757,29 @@ button {
   .stats-row {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  /* Fix right-border for 2-column layout */
+  .stats-row .stat-cell:nth-child(2) {
+    border-right: none;
+  }
+
+  .stats-row .stat-cell:nth-child(3) {
+    border-right: 1px solid var(--light-gray);
+  }
+
+  .stat-cell {
+    padding: 2rem 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .stats-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .stat-num {
+    font-size: clamp(1.6rem, 7vw, 2.4rem);
+  }
 }
 
 .stat-cell {
@@ -807,6 +885,17 @@ button {
   }
 }
 
+@media (max-width: 480px) {
+  .philosophy-text {
+    padding: 3rem 5vw;
+  }
+
+  .philosophy-body {
+    max-width: 100%;
+    font-size: 0.78rem;
+  }
+}
+
 /* ============================================================
    PRODUCT GRID — C&J style: clean cards, 4-column
    ============================================================ */
@@ -819,6 +908,27 @@ button {
   flex-wrap: wrap;
   border-bottom: 1px solid var(--light-gray);
   padding-bottom: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .collection-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .collection-nav {
+    gap: 1rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    width: 100%;
+    flex-wrap: nowrap;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .collection-nav-item {
+    white-space: nowrap;
+  }
 }
 
 .collection-headline {
@@ -866,11 +976,28 @@ button {
   .product-grid {
     grid-template-columns: repeat(2, 1fr);
   }
+
+  /* Fix right-border for 2-column layout */
+  .product-card:nth-child(4n) {
+    border-right: 1px solid var(--light-gray);
+  }
+
+  .product-card:nth-child(2n) {
+    border-right: none;
+  }
 }
 
 @media (max-width: 500px) {
   .product-grid {
     grid-template-columns: 1fr;
+  }
+
+  .product-card:nth-child(2n) {
+    border-right: 1px solid var(--light-gray);
+  }
+
+  .product-card {
+    border-right: none !important;
   }
 }
 
@@ -1039,8 +1166,35 @@ button {
   position: relative;
   overflow: hidden;
   height: 75vh;
-  min-height: 500px;
+  min-height: 400px;
   cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .editorial-banner {
+    height: 55vh;
+    min-height: 320px;
+  }
+
+  .editorial-banner-content {
+    max-width: 100%;
+  }
+
+  .editorial-body {
+    max-width: 100%;
+    font-size: 0.7rem;
+  }
+
+  .editorial-title {
+    font-size: clamp(1.6rem, 6vw, 3rem);
+  }
+}
+
+@media (max-width: 480px) {
+  .editorial-banner {
+    height: 50vh;
+    min-height: 280px;
+  }
 }
 
 .editorial-banner img {
@@ -1210,7 +1364,16 @@ button {
   }
 
   .category-card {
+    height: auto;
     aspect-ratio: 16/9;
+    min-height: 220px;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-card {
+    aspect-ratio: 4/3;
+    min-height: 180px;
   }
 }
 
@@ -1234,6 +1397,18 @@ button {
   gap: 8vw;
   align-items: start;
   margin-bottom: 5rem;
+}
+
+@media (max-width: 768px) {
+  .custom-lab-inner {
+    padding: 5rem 5vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .custom-lab-inner {
+    padding: 4rem 5vw;
+  }
 }
 
 .custom-lab-headline {
@@ -1267,6 +1442,13 @@ button {
   grid-template-columns: 130px 1fr;
   gap: 1.5rem;
   align-items: center;
+}
+
+@media (max-width: 480px) {
+  .param-row {
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
 }
 
 .param-label {
@@ -1343,8 +1525,15 @@ button {
 @media (max-width: 900px) {
   .custom-lab-grid {
     grid-template-columns: 1fr;
+    gap: 4rem;
   }
 
+  .model-grid-dark {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 600px) {
   .model-grid-dark {
     grid-template-columns: 1fr;
   }
@@ -1408,11 +1597,27 @@ button {
 
   .bespoke-img {
     aspect-ratio: 4/3;
+    min-height: 280px;
     order: -1;
   }
 
   .bespoke-text {
     padding: 4rem 5vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .bespoke-text {
+    padding: 3rem 5vw;
+  }
+
+  .bespoke-img {
+    aspect-ratio: 3/2;
+  }
+
+  .price-callout {
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 
@@ -1538,6 +1743,18 @@ button {
   overflow: hidden;
 }
 
+@media (max-width: 768px) {
+  .quote-section {
+    padding: 5rem 6vw;
+  }
+}
+
+@media (max-width: 480px) {
+  .quote-section {
+    padding: 4rem 5vw;
+  }
+}
+
 .quote-section::before {
   content: '';
   position: absolute;
@@ -1596,8 +1813,23 @@ button {
   z-index: 1;
 }
 
+.shipping-intro-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6vw;
+  align-items: center;
+  margin-bottom: 4rem;
+}
+
+@media (max-width: 768px) {
+  .shipping-intro-grid {
+    grid-template-columns: 1fr;
+    gap: 2.5rem;
+  }
+}
+
 /* ============================================================
-   SHIPPING
+   SHIPPING CARDS
    ============================================================ */
 .ship-grid {
   display: grid;
@@ -1609,6 +1841,37 @@ button {
 @media (max-width: 768px) {
   .ship-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Fix borders for 2-col layout */
+  .ship-card:nth-child(2) {
+    border-right: none;
+  }
+
+  .ship-card:nth-child(3) {
+    border-right: 1px solid var(--light-gray);
+    border-top: 1px solid var(--light-gray);
+  }
+
+  .ship-card:nth-child(4) {
+    border-right: none;
+    border-top: 1px solid var(--light-gray);
+  }
+}
+
+@media (max-width: 480px) {
+  .ship-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .ship-card {
+    border-right: none;
+    border-bottom: 1px solid var(--light-gray);
+  }
+
+  .ship-card:nth-child(n) {
+    border-right: none !important;
+    border-top: none !important;
   }
 }
 
@@ -1705,6 +1968,9 @@ button {
   flex-wrap: wrap;
 }
 
+
+
+
 .newsletter-heading {
   font-family: var(--font-serif);
   font-size: clamp(1.4rem, 2.5vw, 2.4rem);
@@ -1728,7 +1994,9 @@ button {
   display: flex;
   gap: 0;
   flex: 0 1 380px;
+  align-self: center;
 }
+
 
 .newsletter-input {
   flex: 1;
@@ -1772,13 +2040,67 @@ button {
   color: var(--black);
 }
 
+/* Newsletter — responsive (placed after base styles to ensure override) */
+@media (max-width: 768px) {
+  .newsletter-strip {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2rem;
+    padding: 3.5rem 5vw;
+  }
+
+  .newsletter-form {
+    /* In column flex context, flex-basis applies to height — reset it */
+    flex: 0 0 auto;
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .newsletter-strip {
+    padding: 3rem 5vw;
+    gap: 1.5rem;
+  }
+
+  .newsletter-form {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .newsletter-input {
+    border-right: 1px solid var(--mid-gray);
+  }
+
+  .newsletter-btn {
+    width: 100%;
+  }
+}
+
 /* ============================================================
    FOOTER — C&J style: clean columns
    ============================================================ */
 .site-footer {
   background: var(--white);
   border-top: 1px solid var(--light-gray);
-  padding: 4.5rem 6vw 2rem;
+  padding: 4.5rem 6vw 4rem;
+}
+
+@media (max-width: 768px) {
+  .site-footer {
+    padding: 3.5rem 5vw 5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .site-footer {
+    padding: 3rem 5vw 5rem;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
 }
 
 .footer-top-bar {
@@ -2043,6 +2365,20 @@ button {
   border: 1px solid var(--mid-gray);
   margin-top: 3rem;
   padding: 2.5rem;
+  overflow: hidden;
+}
+
+@media (max-width: 768px) {
+  .map-wrap {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .map-wrap {
+    padding: 1rem;
+    margin-top: 2rem;
+  }
 }
 
 /* ============================================================
@@ -2072,20 +2408,37 @@ button {
   }
 }
 
+/* NOTE: individual section responsive styles are co-located above */
+
+/* ============================================================
+   SHIPPING SECTION — inline-grid fix
+   ============================================================ */
 @media (max-width: 768px) {
-  .hero-content {
-    max-width: 100%;
+  #shipping>div>div:first-child {
+    grid-template-columns: 1fr !important;
+    gap: 2rem !important;
   }
 
-  .hero-title {
-    font-size: clamp(3rem, 13vw, 5rem);
+  #shipping>div>div:first-child>div:last-child>div[style] {
+    display: block;
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   GENERAL SMALL SCREEN UTILITIES
+   ============================================================ */
+@media (max-width: 480px) {
+  .section-pad {
+    padding: 3rem 5vw;
   }
 
-  .stats-row {
-    grid-template-columns: repeat(2, 1fr);
-  }
-
-  .stat-cell:nth-child(2) {
-    border-right: none;
+  .btn-primary,
+  .btn-secondary,
+  .btn-dark,
+  .btn-outline,
+  .btn-ghost-dark {
+    padding: 0.75rem 1.6rem;
+    font-size: 0.52rem;
   }
 }
