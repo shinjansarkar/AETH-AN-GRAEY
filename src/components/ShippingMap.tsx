@@ -105,9 +105,7 @@ export default function ShippingMap() {
                     <animate attributeName="opacity" from="0.5" to="0" dur="2.5s" repeatCount="indefinite" begin="1.25s" />
                 </circle>
 
-                {/* City micro-labels */}
-                <text x="768" y="278" fontFamily="Jost, sans-serif" fontSize="6.5" fill="#1A1916" fontWeight="500" letterSpacing="0.5">Mumbai</text>
-                <text x="430" y="125" fontFamily="Jost, sans-serif" fontSize="6.5" fill="#1A1916" fontWeight="500" letterSpacing="0.5">Milano</text>
+                {/* City micro-labels removed for general India/Europe pointing */}
 
                 {/* 
                     DDP badge midway on arc

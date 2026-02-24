@@ -3,8 +3,8 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 const leftLinks = [
-    { href: '#collection', label: 'Collection' },
     { href: '#about', label: 'About' },
+    { href: '#collection', label: 'Collection' },
     { href: '#leather', label: 'Leather' },
 ];
 

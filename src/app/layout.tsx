@@ -70,7 +70,33 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body className="antialiased">{children}</body>
+      <body className="antialiased">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Brand",
+              "name": "AETH AN GRAEY",
+              "url": "https://aethangraey.com",
+              "description": "Handcrafted pure goat leather shoes by a single artisan. Where raw nature becomes refined art. Luxury shoes crafted for the European professional.",
+              "logo": "https://aethangraey.com/logo.png"
+            })
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "AETH AN GRAEY",
+              "url": "https://aethangraey.com/"
+            })
+          }}
+        />
+        {children}
+      </body>
     </html>
   );
 }
