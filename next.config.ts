@@ -80,6 +80,10 @@ const nextConfig: NextConfig = {
 
   // Disable the X-Powered-By: Next.js header (info disclosure)
   poweredByHeader: false,
+
+  // Produce a minimal standalone server bundle — only the files needed to run
+  // the app are included, shrinking the Docker image significantly.
+  output: 'standalone',
 };
 
 export default nextConfig;
