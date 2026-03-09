@@ -2,24 +2,34 @@ import type { Metadata } from "next";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "AETH AN GRAEY — The Architecture of Elegance",
+  metadataBase: new URL("https://aethangraey.com"),
+  title: "AETH AN GRAEY — The Architecture of Elegance | Handcrafted Goat Leather Shoes",
   description:
-    "Handcrafted pure goat leather shoes by a single artisan. Where raw nature becomes refined art. One artisan, pure goat leather, your perfect fit. Luxury shoes crafted for the European professional.",
+    "Handcrafted pure goat leather shoes by a single artisan. Where raw nature becomes refined art. One artisan, pure goat leather, your perfect fit. Luxury bespoke footwear crafted for the European professional.",
   keywords: [
     "handmade leather shoes",
-    "goat leather shoes",
+    "pure goat leather shoes",
     "luxury bespoke footwear",
     "artisan shoes Europe",
     "custom leather shoes",
+    "handcrafted men's shoes",
     "AETH AN GRAEY",
+    "elegant leather footwear",
+    "premium goat leather",
   ],
-  // Robots — allow indexing but block AI training scrapers
+  authors: [{ name: "AETH AN GRAEY" }],
+  creator: "AETH AN GRAEY",
+  publisher: "AETH AN GRAEY",
+  // Robots — allow indexing
   robots: {
     index: true,
     follow: true,
     googleBot: {
       index: true,
       follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
     },
   },
   // Prevent referrer leakage on external navigation
@@ -27,15 +37,33 @@ export const metadata: Metadata = {
   openGraph: {
     title: "AETH AN GRAEY — The Architecture of Elegance",
     description:
-      "Sculpted by hand. One artisan. Pure goat leather. Your perfect fit.",
+      "Sculpted by hand. One artisan. Pure goat leather. Your perfect fit. Discover our luxury bespoke footwear.",
+    url: "https://aethangraey.com",
     type: "website",
-    locale: "en_EU",
+    locale: "en_IE",
     siteName: "AETH AN GRAEY",
+    images: [
+      {
+        url: "/favicon.ico",
+        width: 800,
+        height: 600,
+        alt: "AETH AN GRAEY Logo",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "AETH AN GRAEY",
-    description: "The Architecture of Elegance. Handcrafted goat leather shoes.",
+    title: "AETH AN GRAEY | Artisan Leather Footwear",
+    description: "The Architecture of Elegance. Handcrafted goat leather shoes by a single artisan.",
+    images: ["/favicon.ico"],
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/favicon.ico",
+    apple: "/favicon.ico",
+  },
+  alternates: {
+    canonical: "https://aethangraey.com",
   },
 };
 
@@ -47,9 +75,6 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {/* Canonical — prevents duplicate-content SEO / data scraping confusion */}
-        <link rel="canonical" href="https://aethangraey.com" />
-
         {/* Security: tell browsers not to sniff content type */}
         <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
 
