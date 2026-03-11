@@ -484,7 +484,7 @@ export default function Home() {
           {/* Four base models */}
           <div className="model-grid-dark reveal-up">
             {[
-              { model: 'Oxford', price: '€ 299', note: 'From the boardroom outward.' },
+              { model: 'Oxford', price: '€ 375', note: 'From the boardroom outward.' },
               { model: 'Monk Strap', price: '€ 319', note: 'The European signature.' },
               { model: 'Chelsea Boot', price: '€ 329', note: 'Built for every season.' },
               { model: 'Balmoral Boot', price: '€ 349', note: 'The epitome of refined height.' },
