@@ -6,19 +6,19 @@ export default function ShippingMap() {
     return (
         <div>
             {/* Header row */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', alignItems: 'center', flexWrap: 'wrap', gap: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '2rem', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem' }}>
                 <div>
                     <div style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.48rem', fontWeight: 500, letterSpacing: '0.4em', textTransform: 'uppercase', color: '#9A9590', marginBottom: '0.4rem' }}>
                         Atelier to Door
                     </div>
-                    <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.7rem', fontWeight: 300, color: '#1A1916' }}>
+                    <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.1rem, 3vw, 1.7rem)', fontWeight: 300, color: '#1A1916' }}>
                         India  Europe
                     </div>
                 </div>
-                <div style={{ display: 'flex', gap: '3rem' }}>
+                <div style={{ display: 'flex', gap: 'clamp(1rem, 4vw, 3rem)', flexWrap: 'wrap' }}>
                     {[['714', 'Crafting Days'], ['DDP', 'Duty Free'], ['30+', 'EU Countries']].map(([val, label]) => (
                         <div key={label} style={{ textAlign: 'center' }}>
-                            <div style={{ fontFamily: 'Jost, sans-serif', fontSize: '1rem', fontWeight: 400, color: '#1A1916', letterSpacing: '-0.01em' }}>{val}</div>
+                            <div style={{ fontFamily: 'Jost, sans-serif', fontSize: 'clamp(0.85rem, 2.5vw, 1rem)', fontWeight: 400, color: '#1A1916', letterSpacing: '-0.01em' }}>{val}</div>
                             <div style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.42rem', letterSpacing: '0.3em', textTransform: 'uppercase', color: '#9A9590', marginTop: '0.2rem' }}>{label}</div>
                         </div>
                     ))}

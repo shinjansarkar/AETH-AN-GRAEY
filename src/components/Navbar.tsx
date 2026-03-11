@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useCart } from '@/context/CartContext';
 
 const leftLinks = [
     { href: '#about', label: 'About' },
@@ -17,6 +18,7 @@ export default function Navbar() {
     const [scrolled, setScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [announcementVisible, setAnnouncementVisible] = useState(true);
+    const { cartCount, openCart } = useCart();
 
     useEffect(() => {
         const onScroll = () => {
@@ -90,6 +92,51 @@ export default function Navbar() {
                             Order Now
                         </a>
 
+                        {/* Cart icon */}
+                        <button
+                            onClick={openCart}
+                            aria-label={`Open cart — ${cartCount} items`}
+                            style={{
+                                position: 'relative',
+                                background: 'none',
+                                border: 'none',
+                                cursor: 'pointer',
+                                padding: '0.3rem',
+                                color: '#1A1916',
+                                display: 'flex',
+                                alignItems: 'center',
+                            }}
+                        >
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.4">
+                                <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
+                                <line x1="3" y1="6" x2="21" y2="6" />
+                                <path d="M16 10a4 4 0 01-8 0" />
+                            </svg>
+                            {cartCount > 0 && (
+                                <span
+                                    style={{
+                                        position: 'absolute',
+                                        top: '-2px',
+                                        right: '-4px',
+                                        width: '16px',
+                                        height: '16px',
+                                        background: '#A8925A',
+                                        color: '#fff',
+                                        borderRadius: '50%',
+                                        fontSize: '9px',
+                                        fontFamily: 'Jost, sans-serif',
+                                        fontWeight: 600,
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        lineHeight: 1,
+                                    }}
+                                >
+                                    {cartCount > 9 ? '9+' : cartCount}
+                                </span>
+                            )}
+                        </button>
+
                         {/* Hamburger */}
                         <button
                             id="menu-toggle"
@@ -147,6 +194,13 @@ export default function Navbar() {
                     >
                         Order Bespoke ↗
                     </a>
+                    <button
+                        onClick={() => { setMenuOpen(false); openCart(); }}
+                        className="mobile-nav-link"
+                        style={{ background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer', width: '100%', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+                    >
+                        Cart {cartCount > 0 && <span style={{ background: '#A8925A', color: '#fff', borderRadius: '50%', width: '18px', height: '18px', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', fontSize: '10px', fontWeight: 600 }}>{cartCount}</span>}
+                    </button>
                 </div>
             </div>
         </>

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@gsap/react": "^2.1.2",
+    "@shopify/storefront-api-client": "^1.0.9",
     "d3-geo": "^3.1.1",
     "framer-motion": "^12.34.2",
     "gsap": "^3.14.2",

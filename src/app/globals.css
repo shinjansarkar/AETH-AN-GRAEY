@@ -2442,3 +2442,115 @@ button {
     font-size: 0.52rem;
   }
 }
+
+/* ============================================================
+   INFO TABLE — horizontal scroll on small screens
+   ============================================================ */
+.info-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 600px) {
+  .info-table tbody td:first-child {
+    white-space: nowrap;
+    min-width: 90px;
+  }
+}
+
+/* ============================================================
+   CUSTOM LAB — CTA button group responsive
+   ============================================================ */
+.custom-lab-ctas {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .custom-lab-ctas {
+    flex-direction: column;
+  }
+
+  .custom-lab-ctas a,
+  .custom-lab-ctas button {
+    width: 100% !important;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+/* ============================================================
+   CUSTOM LAB — body text max-width on mobile
+   ============================================================ */
+@media (max-width: 900px) {
+  .custom-lab-body {
+    max-width: 100%;
+  }
+}
+
+/* ============================================================
+   BESPOKE — CTA button group responsive
+   ============================================================ */
+.bespoke-cta-group {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 600px) {
+  .bespoke-cta-group {
+    flex-direction: column;
+  }
+
+  .bespoke-cta-group a,
+  .bespoke-cta-group button {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+}
+
+/* ============================================================
+   PROCESS STEP — single-column on very narrow screens
+   ============================================================ */
+@media (max-width: 380px) {
+  .process-step {
+    grid-template-columns: 40px 1fr;
+    gap: 1rem;
+  }
+}
+
+/* ============================================================
+   PRODUCT CARD — always show overlay CTA on touch screens
+   ============================================================ */
+@media (hover: none) {
+  .product-card-overlay {
+    opacity: 1;
+    background: rgba(20, 18, 14, 0.04);
+  }
+
+  .product-card-overlay-btn {
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   SHIPPING DUTIES BOX — full width on mobile
+   ============================================================ */
+@media (max-width: 600px) {
+  .shipping-duties-box {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* ============================================================
+   WHATSAPP — push above sticky mobile CTA bar
+   ============================================================ */
+@media (max-width: 768px) {
+  .wa-toggle-container {
+    bottom: 64px !important;
+  }
+}

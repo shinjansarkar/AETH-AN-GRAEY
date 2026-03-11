@@ -7,6 +7,7 @@ import CursorGlow from '@/components/CursorGlow';
 import Navbar from '@/components/Navbar';
 import MarqueeBanner from '@/components/MarqueeBanner';
 import ShippingMap from '@/components/ShippingMap';
+import AddToCartButton from '@/components/AddToCartButton';
 
 /* ────────────────────────────────────────────────────────────────────
    DATA
@@ -14,11 +15,12 @@ import ShippingMap from '@/components/ShippingMap';
 const products = [
   {
     id: 'signature-oxford',
+    shopifyHandle: 'signature-oxford',
     name: 'Signature Oxford',
     material: 'Full-Grain Goat Leather',
     desc: 'Cap-Toe · Welt Stitched · Single Sole',
     best: 'Executives · Lawyers · Boardrooms',
-    price: '€ 299',
+    price: '€ 375',
     tag: 'Signature',
     img: '/oxford-stand.png',
   },
@@ -26,6 +28,7 @@ const products = [
 
   {
     id: 'signature-monk',
+    shopifyHandle: 'signature-monk-strap',
     name: 'Signature Monk Strap',
     material: 'Burnished Goat Leather',
     desc: 'Double Buckle · Hand-lasted · Storm Welt',
@@ -36,6 +39,7 @@ const products = [
   },
   {
     id: 'signature-chelsea',
+    shopifyHandle: 'signature-chelsea-boot',
     name: 'Signature Chelsea Boot',
     material: 'Smooth Goat Leather',
     desc: 'Elastic Gusset · Single Sole · Pull Tab',
@@ -46,6 +50,7 @@ const products = [
   },
   {
     id: 'signature-balmoral',
+    shopifyHandle: 'signature-balmoral-boot',
     name: 'Signature Balmoral Boot',
     material: 'Full-Grain Goat Leather',
     desc: 'Lace-up · Ankle Height · Classic Profile',
@@ -336,12 +341,11 @@ export default function Home() {
                   />
                   <span className="product-card-tag">{p.tag}</span>
                   <div className="product-card-overlay">
-                    <button
-                      className="product-card-overlay-btn"
-                      onClick={() => scrollTo('custom-lab')}
-                    >
-                      Order Bespoke
-                    </button>
+                    <AddToCartButton
+                      productHandle={p.shopifyHandle}
+                      productName={p.name}
+                      bespoke
+                    />
                   </div>
                 </div>
                 <div className="product-card-body">
@@ -362,12 +366,11 @@ export default function Home() {
                   </div>
                   <div className="product-card-footer">
                     <span className="product-card-price">{p.price}</span>
-                    <button
-                      className="product-card-cta"
-                      onClick={() => scrollTo('custom-lab')}
-                    >
-                      Order Bespoke →
-                    </button>
+                    <AddToCartButton
+                      productHandle={p.shopifyHandle}
+                      productName={p.name}
+                      bespoke
+                    />
                   </div>
                 </div>
               </div>
@@ -500,7 +503,7 @@ export default function Home() {
           </div>
 
           {/* CTAs */}
-          <div className="reveal-up" style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+          <div className="custom-lab-ctas reveal-up">
             <a
               href="mailto:contact@aethangraey.com?subject=Custom%20Lab%20Enquiry"
               style={{
@@ -652,7 +655,7 @@ export default function Home() {
             <div className="price-callout-note">Free DDP shipping to Europe included</div>
           </div>
 
-          <div style={{ marginTop: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }} className="reveal-up stagger-5">
+          <div style={{ marginTop: '2rem' }} className="bespoke-cta-group reveal-up stagger-5">
             <a href="mailto:contact@aethangraey.com?subject=Bespoke%20Enquiry" className="btn-dark">
               Begin Enquiry
             </a>
@@ -682,6 +685,7 @@ export default function Home() {
               </p>
 
               <div className="reveal-up stagger-3">
+                <div className="info-table-wrap">
                 <table className="info-table">
                   <thead>
                     <tr>
@@ -698,6 +702,7 @@ export default function Home() {
                     ))}
                   </tbody>
                 </table>
+                </div>
               </div>
             </div>
 
@@ -757,7 +762,7 @@ export default function Home() {
                 Every shipment is Delivered Duty Paid — you pay nothing extra at customs.
                 Your shoes arrive like a letter from a friend, not a package from a bureaucracy.
               </p>
-              <div style={{ border: '1px solid #D8D5D0', padding: '1.4rem 1.8rem', display: 'inline-block' }}>
+              <div className="shipping-duties-box" style={{ border: '1px solid #D8D5D0', padding: '1.4rem 1.8rem', display: 'inline-block' }}>
                 <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: 'clamp(1.3rem, 2.5vw, 2rem)', fontWeight: 300, color: '#1A1916', marginBottom: '0.2rem' }}>
                   All Duties Paid.
                 </div>

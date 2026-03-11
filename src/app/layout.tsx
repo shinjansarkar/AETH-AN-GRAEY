@@ -1,4 +1,7 @@
 import type { Metadata } from "next";
+import WhatsAppToggle from "@/components/WhatsAppToggle";
+import { CartProvider } from "@/context/CartContext";
+import CartDrawer from "@/components/CartDrawer";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -120,7 +123,11 @@ export default function RootLayout({
             })
           }}
         />
-        {children}
+        <CartProvider>
+          {children}
+          <CartDrawer />
+        </CartProvider>
+        <WhatsAppToggle />
       </body>
     </html>
   );
