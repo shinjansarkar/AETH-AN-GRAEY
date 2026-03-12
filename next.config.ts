@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+   output: 'standalone',
   images: {
     remotePatterns: [
       {
@@ -9,6 +10,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+
 
   // ─── Security Headers ─────────────────────────────────────────────────────
   async headers() {
@@ -83,7 +85,7 @@ const nextConfig: NextConfig = {
 
   // Produce a minimal standalone server bundle — only the files needed to run
   // the app are included, shrinking the Docker image significantly.
-  output: 'standalone',
+  
 };
 
 export default nextConfig;

@@ -12,6 +12,7 @@ const leftLinks = [
 const rightLinks = [
     { href: '#bespoke', label: 'Bespoke' },
     { href: '#shipping', label: 'Shipping' },
+    { href: '#quality', label: 'Quality' },
 ];
 
 export default function Navbar() {

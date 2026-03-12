@@ -8,6 +8,7 @@ import Navbar from '@/components/Navbar';
 import MarqueeBanner from '@/components/MarqueeBanner';
 import ShippingMap from '@/components/ShippingMap';
 import AddToCartButton from '@/components/AddToCartButton';
+import QualitySection from '@/components/QualitySection';
 
 /* ────────────────────────────────────────────────────────────────────
    DATA
@@ -651,7 +652,7 @@ export default function Home() {
 
           <div className="price-callout reveal-up stagger-4">
             <div className="price-callout-label">Starting from</div>
-            <div className="price-callout-amount">€ 299</div>
+            <div className="price-callout-amount">€ 319</div>
             <div className="price-callout-note">Free DDP shipping to Europe included</div>
           </div>
 
@@ -791,6 +792,11 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════
+          QUALITY — Safety, Shipping & Care
+          ══════════════════════════════════════════ */}
+      <QualitySection />
+
+      {/* ══════════════════════════════════════════
           NEWSLETTER
           ══════════════════════════════════════════ */}
       <div className="newsletter-strip">
@@ -835,7 +841,7 @@ export default function Home() {
           <div>
             <p className="footer-desc">
               Three Signature Models. Pure goat leather. One artisan.
-              Zero assembly lines. Delivered DDP to Europe. Starting from € 299.
+              Zero assembly lines. Delivered DDP to Europe. Starting from € 319.
             </p>
           </div>
 
@@ -857,6 +863,7 @@ export default function Home() {
               ['shipping', 'Shipping & DDP'],
               ['bespoke', 'Bespoke Process'],
               ['custom-lab', 'Custom Lab'],
+              ['quality', 'Safety & Care'],
             ].map(([id, label]) => (
               <a key={id} href={`#${id}`} className="footer-link"
                 onClick={(e) => { e.preventDefault(); scrollTo(id); }}>
@@ -876,7 +883,7 @@ export default function Home() {
               <div style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.44rem', fontWeight: 500, letterSpacing: '0.35em', textTransform: 'uppercase', color: '#9A9590', marginBottom: '0.4rem' }}>
                 Starting from
               </div>
-              <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.7rem', fontWeight: 300, color: '#1A1916' }}>€ 299</div>
+              <div style={{ fontFamily: 'Cormorant Garamond, serif', fontSize: '1.7rem', fontWeight: 300, color: '#1A1916' }}>€ 319</div>
             </div>
           </div>
         </div>
