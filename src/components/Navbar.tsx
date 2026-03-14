@@ -54,7 +54,7 @@ export default function Navbar() {
                         pointerEvents: announcementVisible ? 'auto' : 'none',
                     }}
                 >
-                    Free DDP Shipping to All EU Countries · Made to Order · 7–14 Days Crafting
+                    Free DDP Shipping to All EU Countries · Made to Order · 4–6 Weeks Crafting Period
                 </div>
 
                 {/* Main navbar */}

@@ -258,7 +258,7 @@ export default function AddToCartButton({ productHandle, productName, bespoke = 
 
             {/* Assurance note */}
             <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.48rem', color: '#9A9590', textAlign: 'center', marginTop: '0.8rem', letterSpacing: '0.08em' }}>
-              Made to order · 7–14 days crafting · DDP shipping · Free returns
+              Made to order · 4–6 weeks crafting period · DDP shipping · Free returns
             </p>
           </div>
         </>

@@ -209,7 +209,7 @@ export default function CartDrawer() {
                 lineHeight: 1.6,
               }}
             >
-              Made to order · 7–14 days crafting · DDP shipping to all EU
+              Made to order · 4–6 weeks crafting period · DDP shipping to all EU
             </p>
 
             {/* Subtotal */}

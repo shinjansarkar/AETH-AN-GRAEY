@@ -62,6 +62,9 @@ const products = [
   },
 ];
 
+const productConstructionNote =
+  'This is Goodyear hand-welted sole. It is also available in leather hand-welted sole.';
+
 const shoeTypes = [
   {
     title: 'Oxford',
@@ -364,6 +367,19 @@ export default function Home() {
                     }}
                   >
                     {p.desc}
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: 'Jost, sans-serif',
+                      fontSize: '0.58rem',
+                      fontWeight: 300,
+                      letterSpacing: '0.03em',
+                      color: '#5F5A55',
+                      marginBottom: '0.9rem',
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    {productConstructionNote}
                   </div>
                   <div className="product-card-footer">
                     <span className="product-card-price">{p.price}</span>
