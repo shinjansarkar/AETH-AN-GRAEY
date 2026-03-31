@@ -905,6 +905,20 @@ export default function Home() {
         </div>
 
         <div className="footer-bottom">
+          <span className="footer-gstin" style={{
+            fontFamily: 'Jost, sans-serif',
+            fontSize: '0.62rem',
+            fontWeight: 500,
+            color: '#7B5C1D',
+            letterSpacing: '0.12em',
+            background: 'rgba(255, 236, 200, 0.55)',
+            padding: '0.18em 0.7em',
+            borderRadius: '6px',
+            marginRight: '1.2rem',
+            boxShadow: '0 1px 8px 0 rgba(123,92,29,0.07)'
+          }}>
+            GSTIN : 19ABFCA1293G1ZN
+          </span>
           <span className="footer-copy">© 2025 AETH AN GRAEY. All rights reserved. Handcrafted in India.</span>
           <span className="footer-copy">Oxford · Monk Strap · Chelsea Boot · DDP Europe</span>
         </div>
