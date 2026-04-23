@@ -8,6 +8,7 @@ import Navbar from '@/components/Navbar';
 import MarqueeBanner from '@/components/MarqueeBanner';
 import ShippingMap from '@/components/ShippingMap';
 import AddToCartButton from '@/components/AddToCartButton';
+import SizingGuide from '@/components/SizingGuide';
 import QualitySection from '@/components/QualitySection';
 
 /* ────────────────────────────────────────────────────────────────────
@@ -63,7 +64,7 @@ const products = [
 ];
 
 const productConstructionNote =
-  'This is Goodyear hand-welted sole. It is also available in leather hand-welted sole.';
+  'Hand-stitched leather with protective rubber topy — so it lasts as long as the craft that built it.';
 
 const shoeTypes = [
   {
@@ -399,6 +400,15 @@ export default function Home() {
                       productName={p.name}
                       bespoke
                     />
+                  </div>
+                  <div className="product-card-size-section" aria-label={`${p.name} size section`}>
+                    <span className="product-card-size-label">Size</span>
+                    <div className="product-card-size-row">
+                      <span className="product-card-size-text">EU 39 - 46</span>
+                      <a className="product-card-size-link" href="#sizing">
+                        Sizing
+                      </a>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -819,6 +829,11 @@ export default function Home() {
       </section>
 
       {/* ══════════════════════════════════════════
+          SIZING GUIDE
+          ══════════════════════════════════════════ */}
+      <SizingGuide />
+
+      {/* ══════════════════════════════════════════
           QUALITY — Safety, Shipping & Care
           ══════════════════════════════════════════ */}
       <QualitySection />
@@ -887,6 +902,7 @@ export default function Home() {
             {[
               ['about', 'About'],
               ['leather', 'Leather Science'],
+              ['sizing', 'Sizing Guide'],
               ['shipping', 'Shipping & DDP'],
               ['bespoke', 'Bespoke Process'],
               ['custom-lab', 'Custom Lab'],

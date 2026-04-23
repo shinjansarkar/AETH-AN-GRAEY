@@ -1182,6 +1182,55 @@ button {
   color: var(--black);
 }
 
+.product-card-size-section {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid rgba(26, 25, 22, 0.08);
+}
+
+.product-card-size-label {
+  display: inline-block;
+  margin-bottom: 0.45rem;
+  font-family: var(--font-sans);
+  font-size: 0.45rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--stone);
+}
+
+.product-card-size-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.product-card-size-text {
+  font-family: var(--font-sans);
+  font-size: 0.58rem;
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  color: var(--black);
+}
+
+.product-card-size-link {
+  font-family: var(--font-sans);
+  font-size: 0.45rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--stone);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.25s ease;
+  white-space: nowrap;
+}
+
+.product-card-size-link:hover {
+  color: var(--black);
+}
+
 /* ============================================================
    EDITORIAL BANNER — C&J full-width story panels
    ============================================================ */
