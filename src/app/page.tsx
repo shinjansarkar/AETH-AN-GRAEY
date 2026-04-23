@@ -316,6 +316,17 @@ export default function Home() {
               <h2 className="collection-headline reveal-up">
                 The Four Signatures
               </h2>
+              <p className="reveal-up stagger-1" style={{
+                fontFamily: 'Jost, sans-serif',
+                fontSize: '0.6rem',
+                fontWeight: 300,
+                letterSpacing: '0.18em',
+                color: '#7A6B48',
+                textTransform: 'uppercase',
+                marginTop: '0.6rem',
+              }}>
+                4 pairs crafted per month — across all models.&nbsp; Choose yours.
+              </p>
             </div>
             <div className="collection-nav reveal-up stagger-1">
               <span className="collection-nav-item active">All</span>

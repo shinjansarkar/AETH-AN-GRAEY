@@ -72,14 +72,22 @@ export default function AddToCartButton({ productHandle, productName, bespoke = 
     }, 1200);
   };
 
-  // Fallback — if Shopify not configured, show mailto link
+  // WhatsApp pre-filled message with product name
+  const waMessage = encodeURIComponent(
+    `Hello, I'm interested in ordering the ${productName}. Please guide me through the bespoke process.`
+  );
+  const waUrl = `https://wa.me/917501220032?text=${waMessage}`;
+
+  // Fallback — if Shopify not configured, show WhatsApp link
   const shopifyConfigured =
     !!process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN && !!process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN;
 
   if (!shopifyConfigured || fetchError) {
     return (
       <a
-        href={`mailto:contact@aethangraey.com?subject=Order Enquiry — ${encodeURIComponent(productName)}`}
+        href={waUrl}
+        target="_blank"
+        rel="noopener noreferrer"
         className="product-card-cta"
       >
         Order Bespoke →
@@ -89,13 +97,14 @@ export default function AddToCartButton({ productHandle, productName, bespoke = 
 
   return (
     <>
-      <button
+      <a
+        href={waUrl}
+        target="_blank"
+        rel="noopener noreferrer"
         className="product-card-cta"
-        onClick={() => setOpen(true)}
-        disabled={loading}
       >
-        {loading ? 'Please wait…' : 'Order Bespoke →'}
-      </button>
+        Order Bespoke →
+      </a>
 
       {/* Size + Customisation Modal */}
       {open && (
