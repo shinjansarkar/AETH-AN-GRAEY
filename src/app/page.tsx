@@ -64,7 +64,7 @@ const products = [
 ];
 
 const productConstructionNote =
-  'Hand-stitched leather with protective rubber topy — so it lasts as long as the craft that built it.';
+  'Hand-stitched leather Sole with protective rubber topy — so it lasts as long as the craft that built it.';
 
 const shoeTypes = [
   {
@@ -326,7 +326,7 @@ export default function Home() {
                 textTransform: 'uppercase',
                 marginTop: '0.6rem',
               }}>
-                4 pairs crafted per month — across all models.&nbsp; Choose yours.
+                4 pairs crafted per month — across all models. Pre-Orders Yours
               </p>
             </div>
             <div className="collection-nav reveal-up stagger-1">
