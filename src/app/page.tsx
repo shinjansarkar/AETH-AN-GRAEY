@@ -873,7 +873,7 @@ export default function Home() {
           </div>
           <div className="footer-socials">
             <a href="mailto:contact@aethangraey.com" className="footer-social-link">Email</a>
-            <a href="#" className="footer-social-link" aria-disabled="true" onClick={(e) => e.preventDefault()} style={{ opacity: 0.38, cursor: 'not-allowed' }}>Instagram</a>
+            <a href="https://www.instagram.com/aethangraey?igsh=MWo5bG1peHJ2Z3k1bQ==" target="_blank" rel="noopener noreferrer" className="footer-social-link">Instagram</a>
             <a href="#" className="footer-social-link" aria-disabled="true" onClick={(e) => e.preventDefault()} style={{ opacity: 0.38, cursor: 'not-allowed' }}>Pinterest</a>
           </div>
         </div>
@@ -946,7 +946,7 @@ export default function Home() {
           }}>
             GSTIN : 19ABFCA1293G1ZN
           </span>
-          <span className="footer-copy">© 2025 AETH AN GRAEY. All rights reserved. Handcrafted in India.</span>
+          <span className="footer-copy">© 2026 AETH AN GRAEY. All rights reserved. Handcrafted in India.</span>
           <span className="footer-copy">Oxford · Monk Strap · Chelsea Boot · DDP Europe</span>
         </div>
       </footer>
