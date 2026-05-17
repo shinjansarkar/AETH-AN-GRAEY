@@ -90,6 +90,12 @@ export default function RootLayout({
         {/* Referrer: only send origin when navigating cross-origin */}
         <meta name="referrer" content="strict-origin-when-cross-origin" />
 
+        {/* Pinterest site verification */}
+        <meta name="p:domain_verify" content="e736a66b4c41326c9e253ee9d0f8f588" />
+
+        {/* Google site verification */}
+        <meta name="google-site-verification" content="Y2Yhk7-P0ZcjjlTUp_48AX1OA9VvYcoBh3tq9Dk8xRs" />
+
         {/* Preconnect to Google Fonts — improves performance + avoids CORS issues */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
