@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url>
+    <loc>https://aethangraey.com/</loc>
+    <priority>1.00</priority>
+  </url>
+  <url>
+    <loc>https://aethangraey.com/collection</loc>
+    <priority>0.80</priority>
+  </url>
+  <url>
+    <loc>https://aethangraey.com/about</loc>
+    <priority>0.64</priority>
+  </url>
+  <url>
+    <loc>https://aethangraey.com/custom-lab</loc>
+    <priority>0.64</priority>
+  </url>
+  <url>
+    <loc>https://aethangraey.com/bespoke</loc>
+    <priority>0.64</priority>
+  </url>
+</urlset>
