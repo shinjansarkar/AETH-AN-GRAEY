@@ -360,7 +360,8 @@ export default function Home() {
                     <AddToCartButton
                       productHandle={p.shopifyHandle}
                       productName={p.name}
-                      bespoke
+                      productAmount={Number.parseFloat(p.price.replace(/[^0-9.]/g, ''))}
+                      productImage={p.img}
                     />
                   </div>
                 </div>
@@ -398,7 +399,8 @@ export default function Home() {
                     <AddToCartButton
                       productHandle={p.shopifyHandle}
                       productName={p.name}
-                      bespoke
+                      productAmount={Number.parseFloat(p.price.replace(/[^0-9.]/g, ''))}
+                      productImage={p.img}
                     />
                   </div>
                   <div className="product-card-size-section" aria-label={`${p.name} size section`}>

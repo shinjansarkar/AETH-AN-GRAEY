@@ -1,18 +1,20 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
 import { useCart } from '@/context/CartContext';
 
 const leftLinks = [
-    { href: '#about', label: 'About' },
-    { href: '#collection', label: 'Collection' },
-    { href: '#leather', label: 'Leather' },
+    { href: '/#about', label: 'About' },
+    { href: '/#collection', label: 'Collection' },
+    { href: '/#leather', label: 'Leather' },
+    { href: '/gallery', label: 'Gallery' },
 ];
 
 const rightLinks = [
-    { href: '#bespoke', label: 'Bespoke' },
-    { href: '#shipping', label: 'Shipping' },
-    { href: '#quality', label: 'Quality' },
+    { href: '/#bespoke', label: 'Bespoke' },
+    { href: '/#shipping', label: 'Shipping' },
+    { href: '/#quality', label: 'Quality' },
 ];
 
 export default function Navbar() {
@@ -20,6 +22,8 @@ export default function Navbar() {
     const [menuOpen, setMenuOpen] = useState(false);
     const [announcementVisible, setAnnouncementVisible] = useState(true);
     const { cartCount, openCart } = useCart();
+    const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         const onScroll = () => {
@@ -32,10 +36,19 @@ export default function Navbar() {
 
     const handleNav = (href: string) => {
         setMenuOpen(false);
-        setTimeout(() => {
-            const el = document.querySelector(href);
-            if (el) el.scrollIntoView({ behavior: 'smooth' });
-        }, 350);
+        if (href.includes('#')) {
+            const id = href.split('#')[1];
+            if (pathname !== '/') {
+                router.push('/#' + id);
+            } else {
+                setTimeout(() => {
+                    const el = document.getElementById(id);
+                    if (el) el.scrollIntoView({ behavior: 'smooth' });
+                }, 350);
+            }
+        } else {
+            router.push(href);
+        }
     };
 
     return (

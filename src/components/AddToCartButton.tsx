@@ -1,276 +1,406 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useCart } from '@/context/CartContext';
-import { getProductByHandle } from '@/lib/shopify';
-import type { ShopifyProductVariant } from '@/lib/shopify/types';
-
-const EU_SIZES = ['38', '39', '40', '41', '42', '43', '44', '45', '46'];
-
-// Customization options (used as cart line attributes for bespoke orders)
-const CUSTOMIZATION_OPTIONS = {
-  'Toe Shape': ['Round', 'Chisel', 'Pointed'],
-  'Leather Tone': ['Noir', 'Cognac', 'Bone', 'Burgundy', 'Tan'],
-  'Sole Thickness': ['Ultra-thin', 'Classic', 'Storm Welt'],
-  'Patina Finish': ['Natural', 'Hand-burnished', 'Antique'],
-};
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import styles from './AddToCartButton.module.css';
 
 type Props = {
   productHandle: string;
   productName: string;
-  bespoke?: boolean; // show customization panel
+  productAmount: number;
+  productImage?: string;
+  currency?: string;
+  bespoke?: boolean;
 };
 
-export default function AddToCartButton({ productHandle, productName, bespoke = false }: Props) {
-  const { addToCart, loading } = useCart();
-  const [open, setOpen] = useState(false);
-  const [variants, setVariants] = useState<ShopifyProductVariant[]>([]);
-  const [selectedSize, setSelectedSize] = useState('');
-  const [customizations, setCustomizations] = useState<Record<string, string>>({});
-  const [fetchError, setFetchError] = useState(false);
-  const [adding, setAdding] = useState(false);
-  const [success, setSuccess] = useState(false);
+type OrderFormState = {
+  fullName: string;
+  email: string;
+  deliveryAddress: string;
+  phoneNumber: string;
+  shoeSize: string;
+};
 
-  // Fetch variants when modal opens
+type FormErrors = Partial<Record<keyof OrderFormState, string>>;
+
+const DEFAULT_FORM: OrderFormState = {
+  fullName: '',
+  email: '',
+  deliveryAddress: '',
+  phoneNumber: '',
+  shoeSize: '',
+};
+
+const SHOE_SIZES = ['38', '39', '40', '41', '42', '43', '44', '45', '46'];
+
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => { open: () => void };
+  }
+}
+
+function formatPrice(amount: number, currency: string) {
+  try {
+    return new Intl.NumberFormat('en-IE', {
+      style: 'currency',
+      currency,
+      maximumFractionDigits: 2,
+    }).format(amount);
+  } catch {
+    return `${currency} ${amount.toFixed(2)}`;
+  }
+}
+
+function loadRazorpayScript() {
+  return new Promise<boolean>((resolve) => {
+    if (document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]')) {
+      resolve(true);
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
+
+export default function AddToCartButton({
+  productHandle,
+  productName,
+  productAmount,
+  productImage,
+  currency = 'EUR',
+}: Props) {
+  const [open, setOpen] = useState(false);
+  const [form, setForm] = useState<OrderFormState>(DEFAULT_FORM);
+  const [errors, setErrors] = useState<FormErrors>({});
+  const [status, setStatus] = useState<'idle' | 'creating' | 'processing' | 'success' | 'error'>('idle');
+  const [message, setMessage] = useState('');
+  const [orderId, setOrderId] = useState('');
+  const [mounted, setMounted] = useState(false);
+  const firstFieldRef = useRef<HTMLInputElement | null>(null);
+
+  const totalLabel = useMemo(() => formatPrice(productAmount, currency), [productAmount, currency]);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   useEffect(() => {
     if (!open) return;
-    setFetchError(false);
-    getProductByHandle(productHandle)
-      .then((product) => {
-        if (product) {
-          setVariants(product.variants.edges.map((e) => e.node));
-        } else {
-          setFetchError(true);
-        }
-      })
-      .catch(() => setFetchError(true));
-  }, [open, productHandle]);
+    window.setTimeout(() => firstFieldRef.current?.focus(), 80);
+  }, [open]);
 
-  // Find matching variant for selected size
-  const matchedVariant = variants.find((v) =>
-    v.selectedOptions.some((o) => o.name.toLowerCase() === 'size' && o.value === selectedSize)
-  ) ?? variants[0]; // fallback to first variant if only one
-
-  const canAdd = selectedSize !== '' || variants.length === 1;
-
-  const handleAdd = async () => {
-    if (!matchedVariant) return;
-    setAdding(true);
-
-    const attributes = Object.entries(customizations)
-      .filter(([, val]) => val)
-      .map(([key, value]) => ({ key, value }));
-
-    await addToCart({ variantId: matchedVariant.id, quantity: 1, attributes });
-    setAdding(false);
-    setSuccess(true);
-    setTimeout(() => {
-      setSuccess(false);
-      setOpen(false);
-      setSelectedSize('');
-      setCustomizations({});
-    }, 1200);
+  const resetAndClose = () => {
+    setOpen(false);
+    setStatus('idle');
+    setMessage('');
+    setOrderId('');
+    setErrors({});
+    setForm(DEFAULT_FORM);
   };
 
-  // WhatsApp pre-filled message with product name
-  const waMessage = encodeURIComponent(
-    `Hello, I'm interested in ordering the ${productName}. Please guide me through the bespoke process.`
-  );
-  const waUrl = `https://wa.me/917501220032?text=${waMessage}`;
+  const validate = () => {
+    const nextErrors: FormErrors = {};
 
-  // Fallback — if Shopify not configured, show WhatsApp link
-  const shopifyConfigured =
-    !!process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN && !!process.env.NEXT_PUBLIC_SHOPIFY_STOREFRONT_TOKEN;
+    if (!form.fullName.trim()) nextErrors.fullName = 'Enter the customer name';
+    if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) nextErrors.email = 'Enter a valid email address';
+    if (!form.deliveryAddress.trim()) nextErrors.deliveryAddress = 'Enter a full delivery address';
+    if (!/^\+?[0-9 ()-]{7,}$/.test(form.phoneNumber.trim())) nextErrors.phoneNumber = 'Enter a valid phone number';
+    if (!form.shoeSize.trim()) nextErrors.shoeSize = 'Select a shoe size';
 
-  if (!shopifyConfigured || fetchError) {
-    return (
-      <a
-        href={waUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="product-card-cta"
-      >
-        Order Bespoke →
-      </a>
-    );
-  }
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  };
+
+  const handleProceedToPayment = async () => {
+    setMessage('');
+    if (!validate()) return;
+
+    try {
+      setStatus('creating');
+      const createResponse = await fetch('/api/orders/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          ...form,
+          productName,
+          productHandle,
+          productAmount,
+          currency,
+        }),
+      });
+
+      const createData = await createResponse.json();
+      if (!createResponse.ok) {
+        throw new Error(createData?.message ?? 'Unable to create the order');
+      }
+
+      setOrderId(createData.orderId);
+
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded || !window.Razorpay) {
+        throw new Error('Razorpay checkout could not be loaded');
+      }
+
+      setStatus('processing');
+
+      const razorpay = new window.Razorpay({
+        key: createData.keyId,
+        amount: createData.amount,
+        currency: createData.currency,
+        name: 'AETH AN GRAEY',
+        description: productName,
+        order_id: createData.razorpayOrderId,
+        image: '/favicon.ico',
+        prefill: {
+          name: form.fullName,
+          email: form.email,
+          contact: form.phoneNumber,
+        },
+        notes: {
+          order_id: createData.orderId,
+          product_name: productName,
+          shoe_size: form.shoeSize,
+          delivery_address: form.deliveryAddress,
+        },
+        theme: {
+          color: '#1A1916',
+        },
+        modal: {
+          ondismiss: () => {
+            setStatus('error');
+            setMessage('Payment was not completed. You can try again when ready.');
+          },
+        },
+        handler: async (response: Record<string, string>) => {
+          try {
+            const confirmResponse = await fetch('/api/orders/confirm', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                orderId: createData.orderId,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+              }),
+            });
+
+            const confirmData = await confirmResponse.json();
+            if (!confirmResponse.ok) {
+              throw new Error(confirmData?.message ?? 'Payment confirmed, but order update failed');
+            }
+
+            setStatus('success');
+            setMessage('Payment successful. Your order has been confirmed.');
+            setOrderId(confirmData.orderId ?? createData.orderId);
+          } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : 'Unable to confirm the payment';
+            setStatus('error');
+            setMessage(errorMessage);
+          }
+        },
+      });
+
+      razorpay.open();
+    } catch (error) {
+      setStatus('error');
+      setMessage(error instanceof Error ? error.message : 'Unable to start payment');
+    }
+  };
 
   return (
     <>
-      <a
-        href={waUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="product-card-cta"
+      <button
+        type="button"
+        className={styles.orderButton}
+        onClick={() => setOpen(true)}
+        aria-label={`Order now for ${productName}`}
       >
-        Order Bespoke →
-      </a>
+        Order Now
+      </button>
 
-      {/* Size + Customisation Modal */}
-      {open && (
-        <>
-          {/* Backdrop */}
-          <div
-            onClick={() => setOpen(false)}
-            style={{
-              position: 'fixed',
-              inset: 0,
-              background: 'rgba(20,18,14,0.65)',
-              zIndex: 10000,
-              backdropFilter: 'blur(6px)',
-            }}
-          />
+      {mounted && createPortal(
+        <AnimatePresence>
+          {open && (
+          <>
+            <motion.div
+              className={styles.backdrop}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.24 }}
+              onClick={resetAndClose}
+            />
 
-          {/* Modal */}
-          <div
-            style={{
-              position: 'fixed',
-              top: '50%',
-              left: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: 'min(520px, 92vw)',
-              maxHeight: '90dvh',
-              overflowY: 'auto',
-              background: '#FAF9F7',
-              zIndex: 10001,
-              padding: '2.2rem',
-            }}
-          >
-            {/* Header */}
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.8rem' }}>
-              <div>
-                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.5rem', letterSpacing: '0.22em', color: '#9A9590', textTransform: 'uppercase', marginBottom: '0.3rem' }}>
-                  AETH AN GRAEY
-                </p>
-                <h3 style={{ fontFamily: '"Bodoni Moda", Georgia, serif', fontSize: '1.4rem', fontWeight: 500, color: '#1A1916', margin: 0 }}>
-                  {productName}
-                </h3>
-              </div>
-              <button
-                onClick={() => setOpen(false)}
-                aria-label="Close"
-                style={{ background: 'none', border: 'none', cursor: 'pointer', padding: '0.2rem', color: '#9A9590' }}
-              >
-                <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="1.5">
-                  <path d="M2 2l14 14M16 2L2 16" />
-                </svg>
-              </button>
-            </div>
-
-            {/* Size selection — only show if product has size variants */}
-            {variants.length > 1 && (
-              <div style={{ marginBottom: '1.8rem' }}>
-                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.52rem', letterSpacing: '0.18em', color: '#6B6760', textTransform: 'uppercase', marginBottom: '0.8rem' }}>
-                  EU Size
-                </p>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
-                  {variants.map((v) => {
-                    const sizeVal = v.selectedOptions.find((o) => o.name.toLowerCase() === 'size')?.value ?? v.title;
-                    const isSelected = selectedSize === sizeVal;
-                    return (
-                      <button
-                        key={v.id}
-                        onClick={() => setSelectedSize(sizeVal)}
-                        disabled={!v.availableForSale}
-                        style={{
-                          width: '48px',
-                          height: '44px',
-                          border: isSelected ? '1px solid #1A1916' : '1px solid #E8E6E1',
-                          background: isSelected ? '#1A1916' : '#fff',
-                          color: isSelected ? '#FAF9F7' : v.availableForSale ? '#1A1916' : '#D0CEC9',
-                          fontFamily: 'Jost, sans-serif',
-                          fontSize: '0.7rem',
-                          cursor: v.availableForSale ? 'pointer' : 'not-allowed',
-                          textDecoration: !v.availableForSale ? 'line-through' : 'none',
-                          transition: 'all 0.2s',
-                        }}
-                      >
-                        {sizeVal}
-                      </button>
-                    );
-                  })}
-                </div>
-                <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.5rem', color: '#9A9590', marginTop: '0.5rem' }}>
-                  Not sure of your size? <a href="mailto:contact@aethangraey.com?subject=Size Guide" style={{ color: '#A8925A', textDecoration: 'none' }}>Contact us</a> for a fitting guide.
-                </p>
-              </div>
-            )}
-
-            {/* Bespoke customisations */}
-            {bespoke && (
-              <div style={{ marginBottom: '1.8rem' }}>
-                <div style={{ borderTop: '1px solid #E8E6E1', paddingTop: '1.4rem' }}>
-                  <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.52rem', letterSpacing: '0.18em', color: '#A8925A', textTransform: 'uppercase', marginBottom: '1rem' }}>
-                    Custom Lab — Optional
-                  </p>
-                  {Object.entries(CUSTOMIZATION_OPTIONS).map(([label, options]) => (
-                    <div key={label} style={{ marginBottom: '1rem' }}>
-                      <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.5rem', letterSpacing: '0.14em', color: '#6B6760', textTransform: 'uppercase', marginBottom: '0.5rem' }}>
-                        {label}
-                      </p>
-                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem' }}>
-                        {options.map((opt) => {
-                          const isSelected = customizations[label] === opt;
-                          return (
-                            <button
-                              key={opt}
-                              onClick={() =>
-                                setCustomizations((prev) =>
-                                  isSelected ? { ...prev, [label]: '' } : { ...prev, [label]: opt }
-                                )
-                              }
-                              style={{
-                                padding: '0.4rem 0.9rem',
-                                border: isSelected ? '1px solid #A8925A' : '1px solid #E8E6E1',
-                                background: isSelected ? 'rgba(168,146,90,0.08)' : '#fff',
-                                color: isSelected ? '#A8925A' : '#6B6760',
-                                fontFamily: 'Jost, sans-serif',
-                                fontSize: '0.55rem',
-                                letterSpacing: '0.06em',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
-                              }}
-                            >
-                              {opt}
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Add to Cart Button */}
-            <button
-              onClick={handleAdd}
-              disabled={!canAdd || adding || loading}
-              style={{
-                width: '100%',
-                padding: '1rem',
-                background: success ? '#2D6A4F' : '#1A1916',
-                color: '#FAF9F7',
-                fontFamily: 'Jost, sans-serif',
-                fontSize: '0.55rem',
-                fontWeight: 500,
-                letterSpacing: '0.22em',
-                textTransform: 'uppercase',
-                border: 'none',
-                cursor: !canAdd || adding ? 'not-allowed' : 'pointer',
-                opacity: !canAdd ? 0.5 : 1,
-                transition: 'background 0.3s',
-              }}
+            <motion.div
+              className={styles.modal}
+              role="dialog"
+              aria-modal="true"
+              initial={{ opacity: 0, scale: 0.98, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.98, y: 16 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              onClick={(event) => event.stopPropagation()}
             >
-              {success ? '✓ Added to Cart' : adding ? 'Adding…' : !canAdd ? 'Select Your Size' : 'Add to Cart →'}
-            </button>
+              <div className={styles.mediaPanel} style={{ backgroundImage: `url(${productImage || '/default-shoe.jpg'})` }}>
+                <div className={styles.mediaOverlay} />
+                <div className={styles.orderSummaryOverlay}>
+                  <div className={styles.orderSummaryLabel}>ORDER SUMMARY</div>
+                  <h2 className={styles.orderSummaryTitle}>{productName}</h2>
+                  
+                  <div className={styles.priceRow}>
+                    <span>Retail Price</span>
+                    <span>{totalLabel}</span>
+                  </div>
+                  <div className={styles.priceRow}>
+                    <span>Shipping (Express)</span>
+                    <span>€0.00</span>
+                  </div>
+                  
+                  <div className={styles.totalRow}>
+                    <span>TOTAL</span>
+                    <span>{totalLabel}</span>
+                  </div>
 
-            {/* Assurance note */}
-            <p style={{ fontFamily: 'Jost, sans-serif', fontSize: '0.48rem', color: '#9A9590', textAlign: 'center', marginTop: '0.8rem', letterSpacing: '0.08em' }}>
-              Made to order · 4–6 weeks crafting period · DDP shipping · Free returns
-            </p>
-          </div>
-        </>
+                  <div className={styles.madeToOrderBox}>
+                    <div className={styles.mtoHeader}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.287 1.288L3 12l5.8 1.9a2 2 0 0 1 1.288 1.287L12 21l1.9-5.8a2 2 0 0 1 1.287-1.288L21 12l-5.8-1.9a2 2 0 0 1-1.288-1.287Z"/></svg>
+                      <span>MADE TO ORDER</span>
+                    </div>
+                    <p className={styles.mtoText}>
+                      Each pair is handcrafted upon request. Please allow 4–6 weeks for meticulous construction and quality assurance before delivery.
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.formPanel}>
+                <button className={styles.closeButtonTopRight} type="button" onClick={resetAndClose} aria-label="Close form">
+                  ✕
+                </button>
+                
+                <div className={styles.formContainer}>
+                  <div className={styles.stepsHeader}>
+                    <div className={`${styles.step} ${status === 'success' ? styles.stepInactive : styles.stepActive}`}>
+                      <span className={styles.stepNum}>01</span>
+                      <span className={styles.stepText}>INFORMATION</span>
+                    </div>
+                    <div className={styles.stepDivider} />
+                    <div className={`${styles.step} ${status === 'success' ? styles.stepActive : styles.stepInactive}`}>
+                      <span className={styles.stepNum}>02</span>
+                      <span className={styles.stepText}>PAYMENT</span>
+                    </div>
+                  </div>
+
+                  {status === 'success' ? (
+                    <div className={styles.successState}>
+                      <div className={styles.successBadge}>Payment successful</div>
+                      <h4 className={styles.successTitle}>Thank You.</h4>
+                      <p className={styles.successText}>
+                        Your order has been confirmed and our artisans have been notified.
+                      </p>
+                      <div className={styles.successMeta}>
+                        <span>Order ID</span>
+                        <strong>{orderId || 'Pending'}</strong>
+                      </div>
+                      <button type="button" className={styles.submitBtn} onClick={resetAndClose}>
+                        RETURN TO BOUTIQUE
+                      </button>
+                    </div>
+                  ) : (
+                    <form className={styles.formGrid} onSubmit={(event) => { event.preventDefault(); void handleProceedToPayment(); }}>
+                      {message && status === 'error' && <div className={styles.errorBanner}>{message}</div>}
+
+                      <div className={styles.sectionTitle}>PERSONAL INFORMATION</div>
+                      
+                      <label className={`${styles.field} ${styles.fullWidth}`}>
+                        <span>FULL NAME</span>
+                        <input
+                          ref={firstFieldRef}
+                          value={form.fullName}
+                          onChange={(event) => setForm((prev) => ({ ...prev, fullName: event.target.value }))}
+                          aria-invalid={!!errors.fullName}
+                          placeholder="ALEXANDER VANCE"
+                        />
+                        {errors.fullName && <em>{errors.fullName}</em>}
+                      </label>
+                      
+                      <label className={styles.field}>
+                        <span>EMAIL ADDRESS</span>
+                        <input
+                          type="email"
+                          value={form.email}
+                          onChange={(event) => setForm((prev) => ({ ...prev, email: event.target.value }))}
+                          aria-invalid={!!errors.email}
+                          placeholder="vance@heritage.com"
+                        />
+                        {errors.email && <em>{errors.email}</em>}
+                      </label>
+                      
+                      <label className={styles.field}>
+                        <span>PHONE NUMBER</span>
+                        <input
+                          type="tel"
+                          value={form.phoneNumber}
+                          onChange={(event) => setForm((prev) => ({ ...prev, phoneNumber: event.target.value }))}
+                          aria-invalid={!!errors.phoneNumber}
+                          placeholder="+33 (0) 1 23 45 67 89"
+                        />
+                        {errors.phoneNumber && <em>{errors.phoneNumber}</em>}
+                      </label>
+
+                      <div className={styles.sectionTitle}>DELIVERY DETAILS</div>
+                      
+                      <label className={`${styles.field} ${styles.fullWidth}`}>
+                        <span>SHIPPING ADDRESS</span>
+                        <textarea
+                          rows={3}
+                          value={form.deliveryAddress}
+                          onChange={(event) => setForm((prev) => ({ ...prev, deliveryAddress: event.target.value }))}
+                          aria-invalid={!!errors.deliveryAddress}
+                          placeholder="12 AVENUE MONTAIGNE, PARIS 75008"
+                        />
+                        {errors.deliveryAddress && <em>{errors.deliveryAddress}</em>}
+                      </label>
+
+                      <div className={styles.sectionTitle}>SHOE SELECTION</div>
+
+                      <label className={`${styles.field} ${styles.fullWidth}`}>
+                        <span>SIZE (EU)</span>
+                        <select
+                          value={form.shoeSize}
+                          onChange={(event) => setForm((prev) => ({ ...prev, shoeSize: event.target.value }))}
+                          aria-invalid={!!errors.shoeSize}
+                        >
+                          <option value="">Select size</option>
+                          {SHOE_SIZES.map((size) => (
+                            <option key={size} value={size}>EU {size}</option>
+                          ))}
+                        </select>
+                        {errors.shoeSize && <em>{errors.shoeSize}</em>}
+                      </label>
+
+                      <button className={styles.submitBtn} type="submit" disabled={status === 'creating' || status === 'processing'}>
+                        {status === 'creating' ? 'CREATING ORDER…' : status === 'processing' ? 'OPENING PAYMENT…' : 'PROCEED TO PAYMENT'}
+                      </button>
+                      
+                      <div className={styles.secureText}>
+                        SECURE ENCRYPTED TRANSACTION
+                      </div>
+                    </form>
+                  )}
+                </div>
+              </div>
+            </motion.div>
+          </>
+          )}
+        </AnimatePresence>,
+        document.body
       )}
     </>
   );

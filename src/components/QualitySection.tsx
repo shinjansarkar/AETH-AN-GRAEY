@@ -205,6 +205,28 @@ export default function QualitySection() {
               Goat leather shoes, when properly maintained, develop a rich and deeply personal
               patina over years of wear — becoming irreversibly yours.
             </p>
+            
+            <div style={{ marginTop: '2rem', textAlign: 'center' }}>
+              <a href="/gallery" style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                padding: '0.88rem 2.4rem',
+                background: '#A8925A',
+                color: '#141210',
+                fontFamily: 'Jost, sans-serif',
+                fontSize: '0.55rem',
+                fontWeight: 500,
+                letterSpacing: '0.22em',
+                textTransform: 'uppercase',
+                border: '1px solid #A8925A',
+                cursor: 'pointer',
+                textDecoration: 'none',
+                transition: 'all 0.3s ease',
+              }}>
+                View The Gallery
+              </a>
+            </div>
           </div>
         </div>
       </div>
