@@ -42,6 +42,10 @@ function requireEnv(name: string): string {
   return value;
 }
 
+export function hasSupabaseAdminConfig() {
+  return Boolean(process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY);
+}
+
 function getSupabaseAdmin() {
   return createClient(requireEnv('SUPABASE_URL'), requireEnv('SUPABASE_SERVICE_ROLE_KEY'), {
     auth: { persistSession: false },
@@ -309,3 +313,57 @@ export async function confirmPaymentAndNotify(input: ConfirmPaymentInput) {
     emailResults: emailResults.map((result) => (result.status === 'fulfilled' ? 'sent' : result.reason?.message ?? 'failed')),
   };
 }
+
+export type TimeFilter = 'all' | 'day' | 'week' | 'month';
+
+export type AdminOrder = {
+  id: string | number;
+  order_id: string;
+  customer_name: string;
+  customer_email: string;
+  phone_number: string | null;
+  delivery_address: string | null;
+  product_name: string;
+  product_handle: string | null;
+  shoe_size: string;
+  amount_minor: number;
+  currency: string;
+  status: 'pending' | 'paid' | 'failed' | string;
+  payment_status: 'pending' | 'paid' | 'failed' | string;
+  razorpay_order_id: string | null;
+  razorpay_payment_id: string | null;
+  razorpay_signature: string | null;
+  created_at: string;
+  paid_at: string | null;
+  payload: Record<string, unknown> | null;
+};
+
+export async function getAdminOrders(filter: TimeFilter = 'all') {
+  const supabase = getSupabaseAdmin();
+  let query = supabase
+    .from(ORDERS_TABLE)
+    .select('id, order_id, customer_name, customer_email, phone_number, delivery_address, product_name, product_handle, shoe_size, amount_minor, currency, status, payment_status, razorpay_order_id, razorpay_payment_id, razorpay_signature, created_at, paid_at, payload')
+    .order('created_at', { ascending: false });
+
+  if (filter !== 'all') {
+    const now = new Date();
+    const pastDate = new Date();
+    if (filter === 'day') {
+      pastDate.setDate(now.getDate() - 1);
+    } else if (filter === 'week') {
+      pastDate.setDate(now.getDate() - 7);
+    } else if (filter === 'month') {
+      pastDate.setMonth(now.getMonth() - 1);
+    }
+    query = query.gte('created_at', pastDate.toISOString());
+  }
+
+  const { data, error } = await query;
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data as AdminOrder[];
+}
+
