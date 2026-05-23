@@ -15,11 +15,11 @@ import {
   updateCartLines,
   removeCartLines,
 } from '@/lib/shopify';
-import type { ShopifyCart, CartContextType, AddToCartInput } from '@/lib/shopify/types';
+import type { ShopifyCart, CartContextType, AddToCartInput } from '@/lib/shopify';
 
 const CartContext = createContext<CartContextType | null>(null);
 
-const CART_ID_KEY = 'aag_shopify_cart_id';
+const CART_ID_KEY = 'aag_cart_id';
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<ShopifyCart | null>(null);

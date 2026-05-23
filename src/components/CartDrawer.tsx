@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useCart } from '@/context/CartContext';
 import { formatPrice } from '@/lib/shopify';
-import type { ShopifyCartLine } from '@/lib/shopify/types';
+import type { ShopifyCartLine } from '@/lib/shopify';
 
 export default function CartDrawer() {
   const { cart, cartOpen, closeCart, updateCartLine, removeCartLine, loading } = useCart();
@@ -302,7 +302,7 @@ export default function CartDrawer() {
                   textTransform: 'uppercase',
                 }}
               >
-                Secure checkout via Shopify
+                Secure checkout
               </span>
             </div>
           </div>
