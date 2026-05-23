@@ -24,7 +24,7 @@ const products = [
     best: 'Executives · Lawyers · Boardrooms',
     price: '€ 375',
     tag: 'Signature',
-    img: '/oxford-stand.png',
+    img: '/oxford-stand.webp',
   },
 
 
@@ -37,7 +37,7 @@ const products = [
     best: 'Style-conscious professionals',
     price: '€ 319',
     tag: 'Statement',
-    img: '/monk-stand.png',
+    img: '/monk-stand.webp',
   },
   {
     id: 'signature-chelsea',
@@ -48,7 +48,7 @@ const products = [
     best: 'Paris · Berlin aesthetic · Smart casual',
     price: '€ 329',
     tag: 'New',
-    img: '/chelsea-boot-stand.jpg',
+    img: '/chelsea-boot-stand.webp',
   },
   {
     id: 'signature-balmoral',
@@ -59,7 +59,7 @@ const products = [
     best: 'Sharp dressers · Winter elegance',
     price: '€ 349',
     tag: 'Classic',
-    img: '/balmoral-stand.png',
+    img: '/balmoral-stand.webp',
   },
 ];
 
@@ -71,25 +71,25 @@ const shoeTypes = [
     title: 'Oxford',
     sub: 'Authority in its purest form',
     tag: 'Most Formal',
-    img: '/oxford.jpeg',
+    img: '/oxford.webp',
   },
   {
     title: 'Monk Strap',
     sub: 'Confidence with character',
     tag: 'Statement',
-    img: '/monk-strap.jpg',
+    img: '/monk-strap.webp',
   },
   {
     title: 'Chelsea Boot',
     sub: 'Minimal. Sharp. Eternal.',
     tag: 'European Icon',
-    img: '/chelsea-boot.jpeg',
+    img: '/chelsea-boot.webp',
   },
   {
     title: 'Balmoral Boot',
     sub: 'The epitome of refined height',
     tag: 'Modern Classic',
-    img: '/balmor-boot.jpeg',
+    img: '/balmor-boot.webp',
   },
 ];
 

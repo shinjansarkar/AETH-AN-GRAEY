@@ -247,7 +247,7 @@ export default function AddToCartButton({
               transition={{ duration: 0.3, ease: 'easeOut' }}
               onClick={(event) => event.stopPropagation()}
             >
-              <div className={styles.mediaPanel} style={{ backgroundImage: `url(${productImage || '/default-shoe.jpg'})` }}>
+              <div className={styles.mediaPanel} style={{ backgroundImage: `url(${productImage || '/oxford-stand.webp'})` }}>
                 <div className={styles.mediaOverlay} />
                 <div className={styles.orderSummaryOverlay}>
                   <div className={styles.orderSummaryLabel}>ORDER SUMMARY</div>

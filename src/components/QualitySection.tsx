@@ -68,7 +68,7 @@ export default function QualitySection() {
       <div className="quality-safety-grid">
         <div className="quality-safety-img reveal-fade">
           <img
-            src="/handcrafted-boot.png"
+            src="/handcrafted-boot.webp"
             alt="AETH AN GRAEY handcrafted goat leather boot"
             loading="lazy"
           />
