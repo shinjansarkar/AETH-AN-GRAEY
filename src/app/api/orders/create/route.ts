@@ -5,6 +5,7 @@ export const runtime = 'nodejs';
 
 export async function POST(req: Request) {
   try {
+    const origin = new URL(req.url).origin;
     const body = await req.json();
     const requiredFields = ['fullName', 'email', 'deliveryAddress', 'phoneNumber', 'shoeSize', 'productName', 'productHandle', 'productAmount', 'currency'];
 
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
       productHandle: String(body.productHandle),
       productAmount: Number(body.productAmount),
       currency: String(body.currency),
-    });
+    }, origin);
 
     return NextResponse.json(result, { status: 201 });
   } catch (error) {

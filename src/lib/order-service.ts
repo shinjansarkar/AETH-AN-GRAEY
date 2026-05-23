@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
+import Stripe from 'stripe';
 import { createClient } from '@supabase/supabase-js';
 import nodemailer from 'nodemailer';
-import Razorpay from 'razorpay';
 
 export type OrderRequestInput = {
   fullName: string;
@@ -15,20 +15,13 @@ export type OrderRequestInput = {
   currency: string;
 };
 
-export type ConfirmPaymentInput = {
-  orderId: string;
-  razorpayOrderId: string;
-  razorpayPaymentId: string;
-  razorpaySignature: string;
-};
-
 type StoredOrder = OrderRequestInput & {
   orderId: string;
   amountMinor: number;
-  status: 'pending' | 'paid' | 'failed';
-  razorpayOrderId: string | null;
-  razorpayPaymentId: string | null;
-  razorpaySignature: string | null;
+  orderStatus: 'pending' | 'confirmed' | 'failed';
+  paymentStatus: 'pending' | 'paid' | 'failed';
+  stripeCheckoutSessionId: string | null;
+  stripePaymentIntentId: string | null;
   paidAt: string | null;
 };
 
@@ -36,9 +29,11 @@ const ORDERS_TABLE = process.env.SUPABASE_ORDERS_TABLE ?? 'orders';
 
 function requireEnv(name: string): string {
   const value = process.env[name];
+
   if (!value) {
     throw new Error(`Missing required environment variable: ${name}`);
   }
+
   return value;
 }
 
@@ -52,15 +47,27 @@ function getSupabaseAdmin() {
   });
 }
 
-function getRazorpayClient() {
-  return new Razorpay({
-    key_id: requireEnv('RAZORPAY_KEY_ID'),
-    key_secret: requireEnv('RAZORPAY_KEY_SECRET'),
-  });
+function getStripeClient() {
+  return new Stripe(requireEnv('STRIPE_SECRET_KEY'));
+}
+
+function resolveSiteUrl(origin?: string) {
+  const configured = process.env.NEXT_PUBLIC_SITE_URL ?? process.env.SITE_URL ?? process.env.VERCEL_URL;
+
+  if (configured) {
+    return configured.startsWith('http') ? configured : `https://${configured}`;
+  }
+
+  if (origin) {
+    return origin;
+  }
+
+  throw new Error('Missing site URL. Set NEXT_PUBLIC_SITE_URL or pass the request origin.');
 }
 
 function getMailTransport() {
   const port = Number(process.env.SMTP_PORT ?? 587);
+
   return nodemailer.createTransport({
     host: requireEnv('SMTP_HOST'),
     port,
@@ -93,6 +100,10 @@ function formatAmount(amountMinor: number, currency: string) {
   }
 }
 
+function getOrderSelectColumns() {
+  return 'id, order_id, customer_name, customer_email, phone_number, delivery_address, product_name, product_handle, shoe_size, amount_minor, currency, order_status, payment_status, stripe_checkout_session_id, stripe_payment_intent_id, created_at, paid_at, payload';
+}
+
 function emailShell(title: string, body: string) {
   return `
     <div style="margin:0;padding:0;background:#f6f3ee;font-family:Arial,sans-serif;color:#1a1916">
@@ -111,6 +122,7 @@ function emailShell(title: string, body: string) {
 
 function buildCustomerEmail(order: StoredOrder) {
   const amount = formatAmount(order.amountMinor, order.currency);
+
   return emailShell(
     'Payment Successful',
     `
@@ -132,6 +144,7 @@ function buildCustomerEmail(order: StoredOrder) {
 
 function buildAdminEmail(order: StoredOrder) {
   const amount = formatAmount(order.amountMinor, order.currency);
+
   return emailShell(
     'New Order Paid',
     `
@@ -175,20 +188,21 @@ async function sendOrderEmails(order: StoredOrder) {
   return Promise.allSettled([customerEmailPromise, adminEmailPromise]);
 }
 
-export async function createPendingOrderAndPayment(input: OrderRequestInput) {
+export async function createPendingOrderAndPayment(input: OrderRequestInput, origin?: string) {
   const amountMinor = toMinorUnits(input.productAmount);
   const orderId = generateOrderId();
   const supabase = getSupabaseAdmin();
-  const razorpay = getRazorpayClient();
+  const stripe = getStripeClient();
+  const siteUrl = resolveSiteUrl(origin);
 
   const storedOrder: StoredOrder = {
     ...input,
     orderId,
     amountMinor,
-    status: 'pending',
-    razorpayOrderId: null,
-    razorpayPaymentId: null,
-    razorpaySignature: null,
+    orderStatus: 'pending',
+    paymentStatus: 'pending',
+    stripeCheckoutSessionId: null,
+    stripePaymentIntentId: null,
     paidAt: null,
   };
 
@@ -203,11 +217,10 @@ export async function createPendingOrderAndPayment(input: OrderRequestInput) {
     product_handle: storedOrder.productHandle,
     amount_minor: storedOrder.amountMinor,
     currency: storedOrder.currency,
-    status: storedOrder.status,
-    payment_status: 'pending',
-    razorpay_order_id: null,
-    razorpay_payment_id: null,
-    razorpay_signature: null,
+    order_status: storedOrder.orderStatus,
+    payment_status: storedOrder.paymentStatus,
+    stripe_checkout_session_id: null,
+    stripe_payment_intent_id: null,
     paid_at: null,
     payload: storedOrder,
   });
@@ -216,22 +229,40 @@ export async function createPendingOrderAndPayment(input: OrderRequestInput) {
     throw new Error(insertResult.error.message);
   }
 
-  const razorpayOrder = await razorpay.orders.create({
-    amount: amountMinor,
-    currency: input.currency,
-    receipt: orderId,
-    notes: {
-      order_id: orderId,
-      customer_name: input.fullName,
-      customer_email: input.email,
-      product_name: input.productName,
-      shoe_size: input.shoeSize,
+  const checkoutSession = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    customer_email: input.email,
+    client_reference_id: orderId,
+    success_url: `${siteUrl}/success?order_id=${orderId}&session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${siteUrl}/?payment=cancelled`,
+    line_items: [
+      {
+        quantity: 1,
+        price_data: {
+          currency: input.currency.toLowerCase(),
+          unit_amount: amountMinor,
+          product_data: {
+            name: input.productName,
+            description: `Shoe size ${input.shoeSize}`,
+          },
+        },
+      },
+    ],
+    metadata: {
+      orderId,
+      fullName: input.fullName,
+      email: input.email,
+      phoneNumber: input.phoneNumber,
+      deliveryAddress: input.deliveryAddress,
+      shoeSize: input.shoeSize,
+      productName: input.productName,
+      productHandle: input.productHandle,
     },
   });
 
   const updateResult = await supabase
     .from(ORDERS_TABLE)
-    .update({ razorpay_order_id: razorpayOrder.id })
+    .update({ stripe_checkout_session_id: checkoutSession.id })
     .eq('order_id', orderId);
 
   if (updateResult.error) {
@@ -240,68 +271,78 @@ export async function createPendingOrderAndPayment(input: OrderRequestInput) {
 
   return {
     orderId,
-    razorpayOrderId: razorpayOrder.id,
     amount: amountMinor,
     currency: input.currency,
-    keyId: requireEnv('RAZORPAY_KEY_ID'),
+    checkoutSessionId: checkoutSession.id,
+    checkoutUrl: checkoutSession.url,
   };
 }
 
-export async function confirmPaymentAndNotify(input: ConfirmPaymentInput) {
+export async function confirmStripePaymentAndNotify(session: Stripe.Checkout.Session) {
   const supabase = getSupabaseAdmin();
-  const razorpaySecret = requireEnv('RAZORPAY_KEY_SECRET');
+  const orderId = session.metadata?.orderId ?? session.client_reference_id;
 
-  const expectedSignature = crypto
-    .createHmac('sha256', razorpaySecret)
-    .update(`${input.razorpayOrderId}|${input.razorpayPaymentId}`)
-    .digest('hex');
-
-  if (expectedSignature !== input.razorpaySignature) {
-    throw new Error('Invalid payment signature');
+  if (!orderId) {
+    throw new Error('Missing order reference in Stripe session');
   }
 
-  const { data: orderRow, error: fetchError } = await supabase
+  const { data: orderData, error: fetchError } = await supabase
     .from(ORDERS_TABLE)
-    .select('*')
-    .eq('order_id', input.orderId)
+    .select(getOrderSelectColumns())
+    .eq('order_id', orderId)
     .single();
+  const orderRow = orderData as AdminOrder | null;
 
   if (fetchError || !orderRow) {
     throw new Error(fetchError?.message ?? 'Order not found');
   }
 
+  if (orderRow.payment_status === 'paid') {
+    return {
+      orderId: orderRow.order_id,
+      paidAt: orderRow.paid_at,
+      emailResults: ['already confirmed'],
+    };
+  }
+
   const paidAt = new Date().toISOString();
-  const updateResult = await supabase
+  const paymentIntentId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id ?? null;
+
+  const { data: updatedData, error: updateError } = await supabase
     .from(ORDERS_TABLE)
     .update({
-      status: 'paid',
+      order_status: 'confirmed',
       payment_status: 'paid',
-      razorpay_payment_id: input.razorpayPaymentId,
-      razorpay_signature: input.razorpaySignature,
+      stripe_checkout_session_id: session.id,
+      stripe_payment_intent_id: paymentIntentId,
       paid_at: paidAt,
     })
-    .eq('order_id', input.orderId);
+    .eq('order_id', orderId)
+    .eq('payment_status', 'pending')
+    .select(getOrderSelectColumns())
+    .single();
+  const updatedOrder = updatedData as AdminOrder | null;
 
-  if (updateResult.error) {
-    throw new Error(updateResult.error.message);
+  if (updateError || !updatedOrder) {
+    throw new Error(updateError?.message ?? 'Unable to confirm payment');
   }
 
   const storedOrder: StoredOrder = {
-    orderId: orderRow.order_id,
-    fullName: orderRow.customer_name,
-    email: orderRow.customer_email,
-    deliveryAddress: orderRow.delivery_address,
-    phoneNumber: orderRow.phone_number,
-    shoeSize: orderRow.shoe_size,
-    productName: orderRow.product_name,
-    productHandle: orderRow.product_handle,
-    productAmount: Number(orderRow.amount_minor) / 100,
-    currency: orderRow.currency,
-    amountMinor: Number(orderRow.amount_minor),
-    status: 'paid',
-    razorpayOrderId: orderRow.razorpay_order_id ?? input.razorpayOrderId,
-    razorpayPaymentId: input.razorpayPaymentId,
-    razorpaySignature: input.razorpaySignature,
+    orderId: updatedOrder.order_id,
+    fullName: updatedOrder.customer_name,
+    email: updatedOrder.customer_email,
+    deliveryAddress: updatedOrder.delivery_address ?? '',
+    phoneNumber: updatedOrder.phone_number ?? '',
+    shoeSize: updatedOrder.shoe_size,
+    productName: updatedOrder.product_name,
+    productHandle: updatedOrder.product_handle ?? '',
+    productAmount: Number(updatedOrder.amount_minor) / 100,
+    currency: updatedOrder.currency,
+    amountMinor: Number(updatedOrder.amount_minor),
+    orderStatus: 'confirmed',
+    paymentStatus: 'paid',
+    stripeCheckoutSessionId: session.id,
+    stripePaymentIntentId: paymentIntentId,
     paidAt,
   };
 
@@ -328,11 +369,10 @@ export type AdminOrder = {
   shoe_size: string;
   amount_minor: number;
   currency: string;
-  status: 'pending' | 'paid' | 'failed' | string;
+  order_status: 'pending' | 'confirmed' | 'failed' | string;
   payment_status: 'pending' | 'paid' | 'failed' | string;
-  razorpay_order_id: string | null;
-  razorpay_payment_id: string | null;
-  razorpay_signature: string | null;
+  stripe_checkout_session_id: string | null;
+  stripe_payment_intent_id: string | null;
   created_at: string;
   paid_at: string | null;
   payload: Record<string, unknown> | null;
@@ -342,12 +382,13 @@ export async function getAdminOrders(filter: TimeFilter = 'all') {
   const supabase = getSupabaseAdmin();
   let query = supabase
     .from(ORDERS_TABLE)
-    .select('id, order_id, customer_name, customer_email, phone_number, delivery_address, product_name, product_handle, shoe_size, amount_minor, currency, status, payment_status, razorpay_order_id, razorpay_payment_id, razorpay_signature, created_at, paid_at, payload')
+    .select(getOrderSelectColumns())
     .order('created_at', { ascending: false });
 
   if (filter !== 'all') {
     const now = new Date();
     const pastDate = new Date();
+
     if (filter === 'day') {
       pastDate.setDate(now.getDate() - 1);
     } else if (filter === 'week') {
@@ -355,6 +396,7 @@ export async function getAdminOrders(filter: TimeFilter = 'all') {
     } else if (filter === 'month') {
       pastDate.setMonth(now.getMonth() - 1);
     }
+
     query = query.gte('created_at', pastDate.toISOString());
   }
 
@@ -364,6 +406,5 @@ export async function getAdminOrders(filter: TimeFilter = 'all') {
     throw new Error(error.message);
   }
 
-  return data as AdminOrder[];
+  return data as unknown as AdminOrder[];
 }
-

@@ -34,12 +34,6 @@ const DEFAULT_FORM: OrderFormState = {
 
 const SHOE_SIZES = ['38', '39', '40', '41', '42', '43', '44', '45', '46'];
 
-declare global {
-  interface Window {
-    Razorpay?: new (options: Record<string, unknown>) => { open: () => void };
-  }
-}
-
 function formatPrice(amount: number, currency: string) {
   try {
     return new Intl.NumberFormat('en-IE', {
@@ -50,22 +44,6 @@ function formatPrice(amount: number, currency: string) {
   } catch {
     return `${currency} ${amount.toFixed(2)}`;
   }
-}
-
-function loadRazorpayScript() {
-  return new Promise<boolean>((resolve) => {
-    if (document.querySelector('script[src="https://checkout.razorpay.com/v1/checkout.js"]')) {
-      resolve(true);
-      return;
-    }
-
-    const script = document.createElement('script');
-    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-    script.async = true;
-    script.onload = () => resolve(true);
-    script.onerror = () => resolve(false);
-    document.body.appendChild(script);
-  });
 }
 
 export default function AddToCartButton({
@@ -141,72 +119,12 @@ export default function AddToCartButton({
       }
 
       setOrderId(createData.orderId);
-
-      const scriptLoaded = await loadRazorpayScript();
-      if (!scriptLoaded || !window.Razorpay) {
-        throw new Error('Razorpay checkout could not be loaded');
+      setStatus('processing');
+      if (!createData.checkoutUrl) {
+        throw new Error('Stripe checkout URL was not returned');
       }
 
-      setStatus('processing');
-
-      const razorpay = new window.Razorpay({
-        key: createData.keyId,
-        amount: createData.amount,
-        currency: createData.currency,
-        name: 'AETH AN GRAEY',
-        description: productName,
-        order_id: createData.razorpayOrderId,
-        image: '/favicon.ico',
-        prefill: {
-          name: form.fullName,
-          email: form.email,
-          contact: form.phoneNumber,
-        },
-        notes: {
-          order_id: createData.orderId,
-          product_name: productName,
-          shoe_size: form.shoeSize,
-          delivery_address: form.deliveryAddress,
-        },
-        theme: {
-          color: '#1A1916',
-        },
-        modal: {
-          ondismiss: () => {
-            setStatus('error');
-            setMessage('Payment was not completed. You can try again when ready.');
-          },
-        },
-        handler: async (response: Record<string, string>) => {
-          try {
-            const confirmResponse = await fetch('/api/orders/confirm', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                orderId: createData.orderId,
-                razorpayOrderId: response.razorpay_order_id,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-              }),
-            });
-
-            const confirmData = await confirmResponse.json();
-            if (!confirmResponse.ok) {
-              throw new Error(confirmData?.message ?? 'Payment confirmed, but order update failed');
-            }
-
-            setStatus('success');
-            setMessage('Payment successful. Your order has been confirmed.');
-            setOrderId(confirmData.orderId ?? createData.orderId);
-          } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : 'Unable to confirm the payment';
-            setStatus('error');
-            setMessage(errorMessage);
-          }
-        },
-      });
-
-      razorpay.open();
+      window.location.assign(createData.checkoutUrl);
     } catch (error) {
       setStatus('error');
       setMessage(error instanceof Error ? error.message : 'Unable to start payment');
@@ -293,7 +211,7 @@ export default function AddToCartButton({
                     <div className={styles.stepDivider} />
                     <div className={`${styles.step} ${status === 'success' ? styles.stepActive : styles.stepInactive}`}>
                       <span className={styles.stepNum}>02</span>
-                      <span className={styles.stepText}>PAYMENT</span>
+                      <span className={styles.stepText}>STRIPE CHECKOUT</span>
                     </div>
                   </div>
 
@@ -302,7 +220,7 @@ export default function AddToCartButton({
                       <div className={styles.successBadge}>Payment successful</div>
                       <h4 className={styles.successTitle}>Thank You.</h4>
                       <p className={styles.successText}>
-                        Your order has been confirmed and our artisans have been notified.
+                        Your order has been confirmed and our team has been notified.
                       </p>
                       <div className={styles.successMeta}>
                         <span>Order ID</span>

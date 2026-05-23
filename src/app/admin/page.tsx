@@ -90,7 +90,7 @@ export default async function AdminPage({
       <header className={styles.adminHeader}>
         <div>
           <h1 className={styles.adminTitle}>Admin Dashboard</h1>
-          <span className={styles.adminSubtitle}>Aeth An Graey — Supabase orders, customers, and payments</span>
+          <span className={styles.adminSubtitle}>Aeth An Graey — Supabase orders, customers, and Stripe payments</span>
         </div>
         <div className={styles.filterGroup}>
           <Link
@@ -188,7 +188,7 @@ export default async function AdminPage({
           <div className={styles.sectionHeader}>
             <div>
               <h2 className={styles.sectionTitle}>Payment snapshot</h2>
-              <p className={styles.sectionSubtitle}>Payment status and Razorpay references for the selected rows.</p>
+              <p className={styles.sectionSubtitle}>Payment status and Stripe references for the selected rows.</p>
             </div>
             <span className={styles.sectionPill}>Supabase</span>
           </div>
@@ -215,11 +215,11 @@ export default async function AdminPage({
                 </div>
                 <div className={styles.paymentMeta}>
                   <span>{formatAmount(order.amount_minor, order.currency)}</span>
-                  <span>{order.razorpay_payment_id ? 'Razorpay payment saved' : 'Awaiting payment reference'}</span>
+                  <span>{order.stripe_payment_intent_id ? 'Stripe payment saved' : 'Awaiting payment reference'}</span>
                 </div>
                 <div className={styles.monoRow}>
-                  <span>Order: {order.razorpay_order_id ?? '—'}</span>
-                  <span>Payment: {order.razorpay_payment_id ?? '—'}</span>
+                  <span>Checkout: {order.stripe_checkout_session_id ?? '—'}</span>
+                  <span>Payment: {order.stripe_payment_intent_id ?? '—'}</span>
                 </div>
               </article>
             ))}
@@ -275,7 +275,7 @@ export default async function AdminPage({
                     >
                       {order.payment_status}
                     </span>
-                    <div className={styles.cellMeta}>Razorpay order: {order.razorpay_order_id ?? '—'}</div>
+                    <div className={styles.cellMeta}>Stripe session: {order.stripe_checkout_session_id ?? '—'}</div>
                     <div className={styles.cellMeta}>Paid at: {order.paid_at ? formatDate(order.paid_at) : '—'}</div>
                   </td>
                   <td>
