@@ -309,6 +309,25 @@
   overflow-x: auto;
 }
 
+/* Styled horizontal scrollbar for admin table list */
+.tableContainer::-webkit-scrollbar {
+  height: 8px;
+}
+
+.tableContainer::-webkit-scrollbar-track {
+  background: rgba(240, 233, 222, 0.3);
+  border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb {
+  background: var(--mid-gray, #d8d5d0);
+  border-radius: 4px;
+}
+
+.tableContainer::-webkit-scrollbar-thumb:hover {
+  background: var(--stone, #7a7570);
+}
+
 .adminTable {
   width: 100%;
   border-collapse: collapse;
@@ -333,7 +352,30 @@
   border-bottom: 1px solid var(--light-gray);
   color: var(--black);
   vertical-align: middle;
-  min-width: 170px;
+}
+
+.adminTable td:nth-child(1) {
+  min-width: 120px;
+}
+
+.adminTable td:nth-child(2) {
+  min-width: 180px;
+}
+
+.adminTable td:nth-child(3) {
+  min-width: 180px;
+}
+
+.adminTable td:nth-child(4) {
+  min-width: 200px;
+}
+
+.adminTable td:nth-child(5) {
+  min-width: 140px;
+}
+
+.adminTable td:nth-child(6) {
+  min-width: 160px;
 }
 
 .adminTable tbody tr {
@@ -371,10 +413,6 @@
   font-size: 0.7rem;
   color: var(--stone);
   letter-spacing: 0.05em;
-}
-
-.adminTable td:nth-child(5) {
-  min-width: 260px;
 }
 
 .badge {

@@ -100,7 +100,7 @@ export default function AdminTableClient({ initialOrders }: AdminTableClientProp
         escapeCSV(order.delivery_address),
         escapeCSV(order.product_name),
         escapeCSV(order.shoe_size),
-        escapeCSV(order.amount_minor), // Stores the clean standard amount (e.g. 319)
+        escapeCSV(order.amount_minor),
         escapeCSV(order.currency),
         escapeCSV(order.payment_status),
         escapeCSV(order.order_status),

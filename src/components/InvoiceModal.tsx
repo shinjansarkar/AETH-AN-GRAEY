@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { type AdminOrder } from '@/lib/order-service';
 
 interface InvoiceModalProps {
@@ -31,16 +31,18 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
     }).format(new Date(dateString));
   };
 
-  // Generate the PDF using client-side libraries
   const generatePdfBlob = async (): Promise<{ blob: Blob; filename: string } | null> => {
     try {
       const html2canvas = (await import('html2canvas')).default;
       const jsPDF = (await import('jspdf')).default;
 
+      if (document.fonts?.ready) {
+        await document.fonts.ready;
+      }
+
       const element = invoiceRef.current;
       if (!element) return null;
 
-      // Temporary styles to force full visibility during capture
       const originalStyle = element.style.cssText;
       element.style.position = 'relative';
       element.style.left = '0';
@@ -50,14 +52,13 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
       element.style.transform = 'none';
 
       const canvas = await html2canvas(element, {
-        scale: 2, // High resolution
+        scale: 2,
         useCORS: true,
         allowTaint: true,
         backgroundColor: '#ffffff',
         logging: false,
       });
 
-      // Restore original styling
       element.style.cssText = originalStyle;
 
       const imgData = canvas.toDataURL('image/jpeg', 0.95);
@@ -69,20 +70,13 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
 
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      
-      // Calculate fit
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
-      
-      const fitWidth = imgWidth * ratio;
-      const fitHeight = imgHeight * ratio;
-      
+      const ratio = Math.min(pdfWidth / canvas.width, pdfHeight / canvas.height);
+      const fitWidth = canvas.width * ratio;
+      const fitHeight = canvas.height * ratio;
       const x = (pdfWidth - fitWidth) / 2;
-      const y = 0; // align at top
 
-      pdf.addImage(imgData, 'JPEG', x, y, fitWidth, fitHeight);
-      
+      pdf.addImage(imgData, 'JPEG', x, 0, fitWidth, fitHeight);
+
       const blob = pdf.output('blob');
       const filename = `Invoice_${order.order_id}.pdf`;
       return { blob, filename };
@@ -95,11 +89,13 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
   const handleDownload = async () => {
     setIsDownloading(true);
     setStatusMessage(null);
+
     try {
       const result = await generatePdfBlob();
-      if (!result) throw new Error('PDF generation failed');
+      if (!result) {
+        throw new Error('PDF generation failed');
+      }
 
-      // Create download link
       const url = URL.createObjectURL(result.blob);
       const a = document.createElement('a');
       a.href = url;
@@ -108,7 +104,7 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
       a.click();
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-      
+
       setStatusMessage({ type: 'success', text: 'Invoice PDF downloaded successfully.' });
     } catch (err: any) {
       setStatusMessage({ type: 'error', text: err.message || 'Failed to download PDF.' });
@@ -120,11 +116,13 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
   const handleSendEmail = async () => {
     setIsSending(true);
     setStatusMessage(null);
+
     try {
       const result = await generatePdfBlob();
-      if (!result) throw new Error('PDF generation failed');
+      if (!result) {
+        throw new Error('PDF generation failed');
+      }
 
-      // Build Multipart Form Data
       const formData = new FormData();
       formData.append('pdf', result.blob, result.filename);
       formData.append('orderId', order.order_id);
@@ -155,13 +153,13 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
   };
 
   return (
-    <div className="invoice-overlay" role="dialog" aria-modal="true">
+    <div className="invoice-overlay" role="dialog" aria-modal="true" onClick={onClose}>
       <style>{`
         .invoice-overlay {
           position: fixed;
           inset: 0;
           z-index: 5000;
-          background: rgba(20, 18, 14, 0.7);
+          background: rgba(20, 18, 14, 0.72);
           backdrop-filter: blur(10px);
           display: flex;
           align-items: center;
@@ -173,28 +171,30 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
 
         .invoice-modal-card {
           background: var(--white, #ffffff);
-          border-radius: 24px;
+          border-radius: 28px;
           border: 1px solid var(--light-gray, #ebebeb);
           width: 100%;
-          max-width: 900px;
-          box-shadow: 0 30px 90px rgba(0, 0, 0, 0.25);
+          max-width: 1180px;
+          box-shadow: 0 36px 110px rgba(0, 0, 0, 0.26);
           display: grid;
-          grid-template-columns: 1fr 340px;
+          grid-template-columns: minmax(0, 1fr) 360px;
           overflow: hidden;
           max-height: 90vh;
           animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         .invoice-preview-area {
-          padding: 2.5rem;
+          padding: 2rem;
           overflow-y: auto;
-          background: #fcfcfc;
+          background:
+            radial-gradient(circle at top left, rgba(168, 146, 90, 0.08), transparent 25%),
+            linear-gradient(180deg, #fbfaf7 0%, #f6f3ee 100%);
           border-right: 1px solid var(--light-gray, #ebebeb);
         }
 
         .invoice-controls-area {
-          padding: 2.5rem 2rem;
-          background: var(--off-white, #f8f7f5);
+          padding: 2.75rem 2.25rem;
+          background: linear-gradient(180deg, #f8f5ef 0%, #f4efe7 100%);
           display: flex;
           flex-direction: column;
           justify-content: flex-start;
@@ -215,7 +215,6 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
           gap: 1rem;
         }
 
-        /* Premium custom scrollbar for invoice preview and control areas */
         .invoice-preview-area::-webkit-scrollbar,
         .invoice-controls-area::-webkit-scrollbar {
           width: 6px;
@@ -238,17 +237,18 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
           background: rgba(0, 0, 0, 0.3);
         }
 
-        /* Pure Premium Branded Invoice styling */
         .invoice-container {
           background: #ffffff;
-          padding: 3rem;
-          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
-          border: 1px solid #e8e2d9;
+          padding: 3.15rem 3.2rem 2.7rem;
+          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+          border: 1px solid #e9e2d7;
           font-family: 'Jost', sans-serif;
           color: #1a1916;
           width: 100%;
-          min-width: 500px;
-          max-width: 800px;
+          max-width: 780px;
+          min-height: 1040px;
+          display: flex;
+          flex-direction: column;
           margin: 0 auto;
           position: relative;
         }
@@ -256,9 +256,10 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
         .invoice-header {
           display: flex;
           justify-content: space-between;
-          border-bottom: 2px solid #a8925a;
-          padding-bottom: 1.5rem;
+          align-items: flex-start;
+          padding-bottom: 1.25rem;
           margin-bottom: 2rem;
+          border-bottom: 2px solid #b79b5d;
         }
 
         .invoice-logo-group {
@@ -267,70 +268,71 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
         }
 
         .invoice-logo {
-          font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: 1.6rem;
-          font-weight: 500;
-          letter-spacing: 0.25em;
+          font-family: 'Bodoni Moda', 'Cormorant Garamond', Georgia, serif;
+          font-size: 1.75rem;
+          font-weight: 400;
+          letter-spacing: 0.22em;
           text-transform: uppercase;
           color: #1a1916;
-          line-height: 1.2;
+          line-height: 1.08;
         }
 
         .invoice-logo-sub {
-          font-size: 0.55rem;
+          font-size: 0.56rem;
           letter-spacing: 0.2em;
           text-transform: uppercase;
           color: #a8925a;
-          margin-top: 0.3rem;
+          margin-top: 0.45rem;
         }
 
         .invoice-meta {
           text-align: right;
           font-family: 'Jost', sans-serif;
+          padding-top: 0.15rem;
         }
 
         .invoice-title {
-          font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: 2.2rem;
-          font-weight: 300;
-          letter-spacing: 0.05em;
+          font-family: 'Bodoni Moda', 'Cormorant Garamond', Georgia, serif;
+          font-size: 2.45rem;
+          font-weight: 400;
+          letter-spacing: 0.03em;
           color: #1a1916;
-          margin: 0 0 0.5rem 0;
+          margin: 0 0 0.45rem 0;
         }
 
         .invoice-meta-row {
-          font-size: 0.8rem;
-          color: #7a7570;
-          margin-bottom: 0.25rem;
+          font-size: 0.86rem;
+          color: #8e8881;
+          margin-bottom: 0.28rem;
         }
 
         .invoice-meta-row strong {
           color: #1a1916;
-          font-weight: 500;
+          font-weight: 600;
         }
 
         .invoice-address-grid {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 2rem;
-          margin-bottom: 2.5rem;
+          gap: 2.3rem;
+          margin-bottom: 2rem;
         }
 
         .address-col-title {
-          font-size: 0.65rem;
+          font-size: 0.62rem;
           font-weight: 500;
           letter-spacing: 0.15em;
           text-transform: uppercase;
           color: #a8925a;
           border-bottom: 1px solid #ebebeb;
-          padding-bottom: 0.5rem;
+          padding-bottom: 0.65rem;
           margin-bottom: 0.8rem;
           text-align: left;
         }
 
         .address-text {
-          font-size: 0.85rem;
-          line-height: 1.6;
+          font-size: 0.88rem;
+          line-height: 1.7;
           color: #2a2925;
           white-space: pre-wrap;
           text-align: left;
@@ -339,48 +341,49 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
         .address-text strong {
           color: #1a1916;
           display: block;
-          margin-bottom: 0.2rem;
-          font-weight: 500;
+          margin-bottom: 0.22rem;
+          font-weight: 600;
         }
 
         .invoice-table {
           width: 100%;
           border-collapse: collapse;
-          margin-bottom: 2.5rem;
+          margin-top: 0.25rem;
+          margin-bottom: 2.4rem;
         }
 
         .invoice-table th {
-          background: #fbfaf8;
+          background: #f8f6f1;
           border-bottom: 1px solid #a8925a;
-          padding: 0.9rem 1rem;
-          font-size: 0.7rem;
+          padding: 0.95rem 1rem;
+          font-size: 0.68rem;
           font-weight: 500;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.14em;
           text-transform: uppercase;
-          color: #7a7570;
+          color: #7d786f;
           text-align: left;
         }
 
         .invoice-table td {
-          padding: 1.2rem 1rem;
+          padding: 1.35rem 1rem 1.2rem;
           border-bottom: 1px solid #ebebeb;
-          font-size: 0.9rem;
+          font-size: 0.92rem;
           color: #1a1916;
           text-align: left;
         }
 
         .invoice-item-desc {
-          font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: 1.15rem;
+          font-family: 'Bodoni Moda', 'Cormorant Garamond', Georgia, serif;
+          font-size: 1.32rem;
           font-weight: 500;
           color: #1a1916;
         }
 
         .invoice-item-meta {
           font-family: 'Jost', sans-serif;
-          font-size: 0.72rem;
-          color: #9a9590;
-          margin-top: 0.2rem;
+          font-size: 0.67rem;
+          color: #a39c95;
+          margin-top: 0.28rem;
           letter-spacing: 0.05em;
           text-transform: uppercase;
         }
@@ -393,77 +396,77 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
         .invoice-summary-container {
           display: flex;
           justify-content: flex-end;
-          margin-bottom: 3rem;
+          margin-bottom: 2.6rem;
         }
 
         .invoice-summary-table {
-          width: 320px;
+          width: 330px;
           border-collapse: collapse;
         }
 
         .invoice-summary-table td {
-          padding: 0.6rem 0.5rem;
-          font-size: 0.85rem;
+          padding: 0.55rem 0.5rem;
+          font-size: 0.86rem;
           color: #7a7570;
         }
 
         .invoice-summary-table td.price-cell {
           text-align: right;
           color: #1a1916;
-          font-weight: 500;
+          font-weight: 600;
         }
 
         .invoice-summary-table tr.total-row td {
-          border-top: 1px solid #a8925a;
-          border-bottom: 2px double #a8925a;
+          border-top: 1px solid #b79b5d;
+          border-bottom: 2px double #b79b5d;
           padding: 1rem 0.5rem;
-          font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: 1.4rem;
-          font-weight: 600;
+          font-family: 'Bodoni Moda', 'Cormorant Garamond', Georgia, serif;
+          font-size: 1.45rem;
+          font-weight: 500;
           color: #1a1916;
         }
 
         .invoice-summary-table tr.total-row td.price-cell {
-          color: #a8925a;
+          color: #b79b5d;
         }
 
         .invoice-footer {
           border-top: 1px solid #e8e2d9;
-          padding-top: 1.5rem;
+          padding-top: 1.65rem;
+          margin-top: auto;
           text-align: center;
-          font-family: 'Cormorant Garamond', Georgia, serif;
-          font-size: 1.1rem;
+          font-family: 'Bodoni Moda', 'Cormorant Garamond', Georgia, serif;
+          font-size: 1.08rem;
           font-style: italic;
           color: #7a7570;
-          letter-spacing: 0.02em;
+          letter-spacing: 0.01em;
         }
 
         .invoice-footer-sub {
           font-family: 'Jost', sans-serif;
           font-size: 0.62rem;
-          letter-spacing: 0.15em;
+          letter-spacing: 0.18em;
           text-transform: uppercase;
           color: #9a9590;
           margin-top: 0.5rem;
         }
 
-        /* Control Panel */
         .controls-header {
           margin-bottom: 2rem;
         }
 
         .controls-title {
-          font-family: 'Cormorant Garamond', serif;
-          font-size: 1.6rem;
+          font-family: 'Bodoni Moda', 'Cormorant Garamond', Georgia, serif;
+          font-size: 2rem;
           font-weight: 400;
           margin: 0 0 0.5rem 0;
           color: #1a1916;
         }
 
         .controls-desc {
-          font-size: 0.78rem;
-          color: #7a7570;
-          line-height: 1.5;
+          font-size: 0.9rem;
+          color: #8a847d;
+          line-height: 1.7;
         }
 
         .control-buttons {
@@ -476,9 +479,9 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
         .btn-action {
           width: 100%;
           padding: 1rem 1.5rem;
-          border-radius: 12px;
+          border-radius: 14px;
           font-weight: 500;
-          font-size: 0.72rem;
+          font-size: 0.7rem;
           letter-spacing: 0.15em;
           text-transform: uppercase;
           border: none;
@@ -498,7 +501,7 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
         .btn-action-primary:hover:not(:disabled) {
           background: #a8925a;
           transform: translateY(-2px);
-          box-shadow: 0 10px 20px rgba(168, 146, 90, 0.2);
+          box-shadow: 0 10px 24px rgba(168, 146, 90, 0.22);
         }
 
         .btn-action-secondary {
@@ -549,7 +552,6 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
           color: #c62828;
         }
 
-        /* Spinner animation */
         .spinner {
           width: 14px;
           height: 14px;
@@ -595,13 +597,45 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
             padding: 2rem;
           }
         }
+
+        @media (max-width: 640px) {
+          .invoice-overlay {
+            padding: 0.75rem;
+          }
+
+          .invoice-preview-area,
+          .invoice-controls-area {
+            padding: 1.25rem;
+          }
+
+          .invoice-container {
+            padding: 2rem 1.4rem 1.8rem;
+          }
+
+          .invoice-header,
+          .invoice-address-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+          }
+
+          .invoice-meta {
+            text-align: left;
+          }
+
+          .invoice-title {
+            font-size: 2rem;
+          }
+
+          .controls-title {
+            font-size: 1.65rem;
+          }
+        }
       `}</style>
 
       <div className="invoice-modal-card" onClick={(e) => e.stopPropagation()}>
-        {/* Left Side: Invoice Preview */}
         <div className="invoice-preview-area">
           <div className="invoice-container" ref={invoiceRef} id={`invoice-container-${order.order_id}`}>
-            {/* Header */}
             <div className="invoice-header">
               <div className="invoice-logo-group">
                 <span className="invoice-logo">Aeth An Graey</span>
@@ -611,11 +645,12 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
                 <h2 className="invoice-title">Invoice</h2>
                 <div className="invoice-meta-row">Invoice No: <strong>INV-{order.order_id}</strong></div>
                 <div className="invoice-meta-row">Date: <strong>{formatDate(order.created_at)}</strong></div>
-                <div className="invoice-meta-row">Status: <strong style={{ color: order.payment_status === 'paid' ? '#2e7d32' : '#f57f17' }}>{order.payment_status.toUpperCase()}</strong></div>
+                <div className="invoice-meta-row">
+                  Status: <strong style={{ color: order.payment_status === 'paid' ? '#2e7d32' : '#f57f17' }}>{order.payment_status.toUpperCase()}</strong>
+                </div>
               </div>
             </div>
 
-            {/* Billing Address Details */}
             <div className="invoice-address-grid">
               <div>
                 <div className="address-col-title">Company Info</div>
@@ -632,12 +667,11 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
                   <strong>{order.customer_name}</strong>
                   {order.customer_email}<br />
                   {order.phone_number && <>Phone: {order.phone_number}<br /></>}
-                  {order.delivery_address}
+                  {order.delivery_address || '—'}
                 </div>
               </div>
             </div>
 
-            {/* Line Items Table */}
             <table className="invoice-table">
               <thead>
                 <tr>
@@ -660,7 +694,6 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
               </tbody>
             </table>
 
-            {/* Summary */}
             <div className="invoice-summary-container">
               <table className="invoice-summary-table">
                 <tbody>
@@ -680,7 +713,6 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
               </table>
             </div>
 
-            {/* Footer */}
             <div className="invoice-footer">
               "Crafting luxury, one step at a time."
               <div className="invoice-footer-sub">
@@ -690,11 +722,10 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
           </div>
         </div>
 
-        {/* Right Side: Control Actions */}
         <div className="invoice-controls-area">
           <div className="controls-top-group">
-            <button 
-              onClick={onClose} 
+            <button
+              onClick={onClose}
               className="btn-back-link"
               style={{
                 display: 'inline-flex',
@@ -725,7 +756,7 @@ export default function InvoiceModal({ order, onClose }: InvoiceModalProps) {
             <div className="controls-header">
               <h3 className="controls-title">Invoice Manager</h3>
               <p className="controls-desc">
-                Generate a high-fidelity PDF copy of the bill for Order <strong>{order.order_id}</strong>.
+                Generate a high-fidelity HTML-to-PDF copy of the bill for Order <strong>{order.order_id}</strong>.
               </p>
             </div>
 

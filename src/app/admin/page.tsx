@@ -1,5 +1,6 @@
 import { getAdminOrders, hasSupabaseAdminConfig, TimeFilter, type AdminOrder } from '@/lib/order-service';
 import Link from 'next/link';
+import AdminTableClient from './AdminTableClient';
 import styles from './admin.module.css';
 
 export const dynamic = 'force-dynamic';
@@ -33,7 +34,7 @@ function formatAmount(amountMinor: number, currency: string) {
     currency: currency || 'EUR',
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
-  }).format(amountMinor / 100);
+  }).format(amountMinor);
 }
 
 function formatDate(dateString: string) {
@@ -71,7 +72,7 @@ export default async function AdminPage({
   const pendingOrders = orders.filter((order) => order.payment_status === 'pending').length;
   const totalRevenue = orders.reduce((acc, order) => {
     if (order.payment_status === 'paid') {
-      return acc + order.amount_minor / 100;
+      return acc + order.amount_minor;
     }
     return acc;
   }, 0);
@@ -138,7 +139,7 @@ export default async function AdminPage({
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>Revenue from paid orders</span>
-          <div className={styles.statValue}>{formatAmount(totalRevenue * 100, 'EUR')}</div>
+          <div className={styles.statValue}>{formatAmount(totalRevenue, 'EUR')}</div>
           <p className={styles.statMeta}>Confirmed payments only.</p>
         </div>
         <div className={styles.statCard}>
@@ -148,7 +149,7 @@ export default async function AdminPage({
         </div>
         <div className={styles.statCard}>
           <span className={styles.statLabel}>Average order value</span>
-          <div className={styles.statValue}>{formatAmount(averageOrderValue * 100, 'EUR')}</div>
+          <div className={styles.statValue}>{formatAmount(averageOrderValue, 'EUR')}</div>
           <p className={styles.statMeta}>{paidOrders} paid orders / {pendingOrders} pending.</p>
         </div>
       </section>
@@ -227,69 +228,7 @@ export default async function AdminPage({
         </div>
       </section>
 
-      <div className={styles.tableContainer}>
-        <table className={styles.adminTable}>
-          <thead>
-            <tr>
-              <th>Order</th>
-              <th>Customer</th>
-              <th>Product</th>
-              <th>Payment</th>
-              <th>Imported Data</th>
-            </tr>
-          </thead>
-          <tbody>
-            {orders.length === 0 ? (
-              <tr>
-                <td colSpan={5} className={styles.emptyState}>
-                  No orders found for this period.
-                </td>
-              </tr>
-            ) : (
-              orders.map((order) => (
-                <tr key={order.id}>
-                  <td>
-                    <div className={styles.cellTitle}>{order.order_id}</div>
-                    <div className={styles.cellMeta}>{formatDate(order.created_at)}</div>
-                  </td>
-                  <td>
-                    <span className={styles.customerName}>{order.customer_name}</span>
-                    <span className={styles.customerEmail}>{order.customer_email}</span>
-                    <div className={styles.cellMeta}>{order.phone_number ?? 'No phone saved'}</div>
-                  </td>
-                  <td>
-                    <span className={styles.productName}>{order.product_name}</span>
-                    <span className={styles.productSize}>Size: {order.shoe_size}</span>
-                    <div className={styles.cellMeta}>{order.delivery_address ?? 'No delivery address saved'}</div>
-                  </td>
-                  <td>
-                    <div className={styles.paymentAmount}>{formatAmount(order.amount_minor, order.currency)}</div>
-                    <span
-                      className={`${styles.badge} ${
-                        order.payment_status === 'paid'
-                          ? styles.badgePaid
-                          : order.payment_status === 'failed'
-                            ? styles.badgeFailed
-                            : styles.badgePending
-                      }`}
-                    >
-                      {order.payment_status}
-                    </span>
-                    <div className={styles.cellMeta}>Stripe session: {order.stripe_checkout_session_id ?? '—'}</div>
-                    <div className={styles.cellMeta}>Paid at: {order.paid_at ? formatDate(order.paid_at) : '—'}</div>
-                  </td>
-                  <td>
-                    <details className={styles.payloadDetails}>
-                      <summary>View imported payload</summary>
-                      <pre>{JSON.stringify(order.payload ?? {}, null, 2)}</pre>
-                    </details>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+      <AdminTableClient initialOrders={orders} />
     </div>
   );
 }
