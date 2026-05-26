@@ -373,6 +373,7 @@ export type AdminOrder = {
   payment_status: 'pending' | 'paid' | 'failed' | string;
   stripe_checkout_session_id: string | null;
   stripe_payment_intent_id: string | null;
+  transaction_id: string | null;
   created_at: string;
   paid_at: string | null;
   payload: Record<string, unknown> | null;
@@ -407,4 +408,17 @@ export async function getAdminOrders(filter: TimeFilter = 'all') {
   }
 
   return data as unknown as AdminOrder[];
+}
+
+export async function deleteOrder(orderId: string) {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from(ORDERS_TABLE)
+    .delete()
+    .eq('order_id', orderId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  return true;
 }
