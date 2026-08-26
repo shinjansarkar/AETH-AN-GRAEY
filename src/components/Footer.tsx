@@ -67,10 +67,10 @@ export default function Footer() {
             <div className="footer-col-title" style={{ letterSpacing: '0.2em', fontSize: '0.6rem', color: '#000' }}>COLLECTION</div>
             {[
               { label: 'NEW ARRIVALS', href: '/collection?category=new-arrivals' },
-              { label: 'ESSENTIALS', href: '/collection?category=essentials' },
-              { label: 'OVERSIZED TEES', href: '/collection?category=oversized-tees' },
-              { label: 'LIMITED DROPS', href: '/collection?category=limited-drops' },
-              { label: 'ACCESSORIES', href: '/collection?category=accessories' },
+              { label: 'OXFORDS', href: '/collection?category=Oxfords' },
+              { label: 'MONK STRAPS', href: '/collection?category=Monk-Straps' },
+              { label: 'CHELSEA BOOTS', href: '/collection?category=Chelsea-Boots' },
+              { label: 'SNEAKERS', href: '/collection?category=Sneakers' },
             ].map((link) => (
               <a
                 key={link.label}
@@ -92,6 +92,7 @@ export default function Footer() {
               ['/collection', 'SHOP PRODUCTS'],
               ['/gallery', 'EDITORIAL GALLERY'],
               ['/shipping', 'SHIPPING & DUTIES'],
+              ['/b2b-partnerships', 'B2B PARTNERSHIPS'],
               ['/contact', 'STUDIO CONTACT'],
             ].map(([path, label]) => (
               <a

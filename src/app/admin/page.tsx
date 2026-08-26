@@ -95,6 +95,13 @@ export default async function AdminPage({
         </div>
         <div className={styles.filterGroup}>
           <Link
+            href="/admin/inventory"
+            className={styles.filterBtn}
+            style={{ backgroundColor: '#2A1C35', color: '#FFF' }}
+          >
+            Manage Inventory
+          </Link>
+          <Link
             href="/admin?filter=all"
             className={`${styles.filterBtn} ${filter === 'all' ? styles.active : ''}`}
           >
