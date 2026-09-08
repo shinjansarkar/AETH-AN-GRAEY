@@ -5,7 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 
 const leftLinks = [
     { href: '/#about', label: 'About' },
-    { href: '/#collection', label: 'Collection' },
+    { href: '/collection', label: 'Collection' },
     { href: '/#leather', label: 'Leather' },
     { href: '/gallery', label: 'Gallery' },
 ];
@@ -14,6 +14,7 @@ const rightLinks = [
     { href: '/#bespoke', label: 'Bespoke' },
     { href: '/#shipping', label: 'Shipping' },
     { href: '/#quality', label: 'Quality' },
+    { href: '/b2b-partnerships', label: 'B2B Partnerships' },
 ];
 
 export default function Navbar() {

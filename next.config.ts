@@ -8,6 +8,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'oztvmvdyfhvfsisorbmx.supabase.co',
+      },
     ],
   },
 
@@ -59,8 +63,8 @@ const nextConfig: NextConfig = {
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
               // Fonts: self + Google Fonts CDN
               "font-src 'self' https://fonts.gstatic.com",
-              // Images: self + Unsplash (for dynamic images) + data URIs
-              "img-src 'self' https://images.unsplash.com data:",
+              // Images: self + Unsplash (for dynamic images) + Supabase + data URIs
+              "img-src 'self' https://images.unsplash.com https://oztvmvdyfhvfsisorbmx.supabase.co data:",
               // Connections: self only (no external API calls)
               "connect-src 'self'",
               // Media: self only

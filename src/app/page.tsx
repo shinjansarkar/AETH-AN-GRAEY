@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import Preloader from '@/components/Preloader';
 import CursorGlow from '@/components/CursorGlow';
@@ -60,6 +61,17 @@ const products = [
     price: '€ 349',
     tag: 'Classic',
     img: '/balmoral-stand.webp',
+  },
+  {
+    id: 'artisan-sneaker',
+    shopifyHandle: 'artisan-sneaker',
+    name: 'Artisan Sneaker',
+    material: 'Pure Goat Leather',
+    desc: 'Casual luxury · Hand-stitched · Effortless',
+    best: 'Everyday elegance',
+    price: '€ 285',
+    tag: 'The New Standard',
+    img: '/sniker_1.webp',
   },
 ];
 
@@ -163,6 +175,34 @@ const shippingFeatures = [
    ──────────────────────────────────────────────────────────────────── */
 export default function Home() {
   const [imgLoaded, setImgLoaded] = useState(false);
+  const [scrollY, setScrollY] = useState(0);
+  const router = useRouter();
+
+  useEffect(() => {
+    // Inject marquee keyframes
+    const style = document.createElement('style');
+    style.innerHTML = `
+      @keyframes autoScrollGrid {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-25%); }
+      }
+      .marquee-wrapper {
+        overflow: hidden;
+        width: 100%;
+        padding-bottom: 2.5rem;
+      }
+      .marquee-content {
+        display: flex;
+        width: max-content;
+        animation: autoScrollGrid 35s linear infinite;
+      }
+      .marquee-wrapper:hover .marquee-content {
+        animation-play-state: paused;
+      }
+    `;
+    document.head.appendChild(style);
+    return () => { document.head.removeChild(style); };
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => setImgLoaded(true), 200);
@@ -180,7 +220,16 @@ export default function Home() {
       observer.observe(el)
     );
 
-    return () => { clearTimeout(t); observer.disconnect(); };
+    const handleScroll = () => {
+      requestAnimationFrame(() => setScrollY(window.scrollY));
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+
+    return () => { 
+      clearTimeout(t); 
+      observer.disconnect(); 
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   const scrollTo = (id: string) =>
@@ -199,7 +248,7 @@ export default function Home() {
         className="hero hero-offset"
         id="hero"
       >
-        <div className="hero-bg">
+        <div className="hero-bg" style={{ transform: `translateY(${scrollY * 0.4}px)` }}>
           <img
             src="https://images.unsplash.com/photo-1614252235316-8c857d38b5f4?w=1920&q=90&fit=crop&crop=center"
             alt="Signature Oxford — AETH AN GRAEY handcrafted goat leather"
@@ -223,7 +272,7 @@ export default function Home() {
           </p>
 
           <div className="hero-actions reveal-up stagger-3">
-            <button className="btn-primary" onClick={() => scrollTo('collection')}>
+            <button className="btn-primary" onClick={() => router.push('/collection')}>
               The Collection
             </button>
             <button className="btn-secondary" onClick={() => scrollTo('custom-lab')}>
@@ -290,7 +339,7 @@ export default function Home() {
           </p>
           <button
             className="btn-dark reveal-up stagger-4"
-            onClick={() => scrollTo('collection')}
+            onClick={() => router.push('/collection')}
             style={{ alignSelf: 'flex-start' }}
           >
             Explore Models
@@ -304,18 +353,18 @@ export default function Home() {
       <section
         className="section-pad"
         id="collection"
-        style={{ background: '#F8F7F5' }}
+        style={{ background: '#141210', color: '#EFEBE6' }}
       >
         <div style={{ maxWidth: '1280px', margin: '0 auto' }}>
 
           {/* C&J-style collection header with nav tabs */}
           <div className="collection-header">
             <div>
-              <span className="section-label" style={{ marginBottom: '0.4rem' }}>
+              <span className="section-label" style={{ marginBottom: '0.4rem', color: '#A8925A' }}>
                 Aeth An Graey
               </span>
-              <h2 className="collection-headline reveal-up">
-                The Four Signatures
+              <h2 className="collection-headline reveal-up" style={{ color: '#EFEBE6' }}>
+                Signature Models
               </h2>
               <p className="reveal-up stagger-1" style={{
                 fontFamily: 'Jost, sans-serif',
@@ -326,27 +375,37 @@ export default function Home() {
                 textTransform: 'uppercase',
                 marginTop: '0.6rem',
               }}>
-                4 pairs crafted per month — across all models. Pre-Orders Yours
+                Pre-Orders Yours
               </p>
             </div>
-            <div className="collection-nav reveal-up stagger-1">
+            <div className="collection-nav reveal-up stagger-1" style={{ filter: 'invert(1) hue-rotate(180deg)' }}>
               <span className="collection-nav-item active">All</span>
               <span className="collection-nav-item">Oxford</span>
               <span className="collection-nav-item">Monk Strap</span>
               <span className="collection-nav-item">Chelsea Boot</span>
               <span className="collection-nav-item">Balmoral Boot</span>
+              <span className="collection-nav-item">Sneaker</span>
             </div>
           </div>
 
-          {/* Product cards */}
-          <div className="product-grid">
-            {products.map((p, i) => (
-              <div
-                key={p.id}
-                className="product-card reveal-up"
-                style={{ transitionDelay: `${i * 0.1}s` }}
-              >
-                <div className="product-card-img-wrap">
+          {/* Product cards continuous loop */}
+          <div className="marquee-wrapper reveal-up stagger-2">
+            <div className="marquee-content">
+              {[1, 2, 3, 4].map((setIndex) => (
+                <React.Fragment key={setIndex}>
+                  {products.map((p, i) => (
+                    <div
+                      key={`${setIndex}-${p.id}`}
+                      className="product-card"
+                      style={{ 
+                        flex: '0 0 min(280px, 75vw)', 
+                        marginRight: '1rem',
+                        transitionDelay: `${i * 0.1}s`,
+                        border: 'none', // Override globals.css border
+                        backgroundColor: '#1A1916'
+                      }}
+                    >
+                <div className="product-card-img-wrap" style={{ aspectRatio: '4/5', backgroundColor: '#141210' }}>
                   <Image
                     src={p.img}
                     alt={p.name}
@@ -357,24 +416,30 @@ export default function Home() {
                   />
                   <span className="product-card-tag">{p.tag}</span>
                   <div className="product-card-overlay">
-                    <AddToCartButton
-                      productHandle={p.shopifyHandle}
-                      productName={p.name}
-                      productAmount={Number.parseFloat(p.price.replace(/[^0-9.]/g, ''))}
-                      productImage={p.img}
-                    />
+                    <span style={{ 
+                      fontFamily: 'Jost, sans-serif', 
+                      fontSize: '0.65rem', 
+                      fontWeight: 500, 
+                      letterSpacing: '0.2em', 
+                      textTransform: 'uppercase',
+                      color: '#FFF',
+                      borderBottom: '1px solid #FFF',
+                      paddingBottom: '2px'
+                    }}>
+                      Explore Model
+                    </span>
                   </div>
                 </div>
-                <div className="product-card-body">
-                  <div className="product-card-name">{p.name}</div>
-                  <div className="product-card-material">{p.material}</div>
+                <div className="product-card-body" style={{ padding: '1.2rem', backgroundColor: '#1A1916' }}>
+                  <div className="product-card-name" style={{ fontSize: '0.9rem', marginBottom: '0.2rem', color: '#EFEBE6' }}>{p.name}</div>
+                  <div className="product-card-material" style={{ fontSize: '0.65rem', color: '#A8925A' }}>{p.material}</div>
                   <div
                     style={{
                       fontFamily: 'Jost, sans-serif',
                       fontSize: '0.58rem',
                       fontWeight: 300,
                       letterSpacing: '0.04em',
-                      color: '#9A9590',
+                      color: 'rgba(239, 235, 230, 0.65)',
                       marginBottom: '0.6rem',
                       lineHeight: 1.7,
                     }}
@@ -387,34 +452,35 @@ export default function Home() {
                       fontSize: '0.58rem',
                       fontWeight: 300,
                       letterSpacing: '0.03em',
-                      color: '#5F5A55',
+                      color: 'rgba(239, 235, 230, 0.45)',
                       marginBottom: '0.9rem',
                       lineHeight: 1.7,
                     }}
                   >
                     {productConstructionNote}
                   </div>
-                  <div className="product-card-footer">
-                    <span className="product-card-price">{p.price}</span>
-                    <AddToCartButton
-                      productHandle={p.shopifyHandle}
-                      productName={p.name}
-                      productAmount={Number.parseFloat(p.price.replace(/[^0-9.]/g, ''))}
-                      productImage={p.img}
-                    />
-                  </div>
-                  <div className="product-card-size-section" aria-label={`${p.name} size section`}>
-                    <span className="product-card-size-label">Size</span>
-                    <div className="product-card-size-row">
-                      <span className="product-card-size-text">EU 39 - 46</span>
-                      <a className="product-card-size-link" href="#sizing">
-                        Sizing
-                      </a>
-                    </div>
+                  <div className="product-card-footer" style={{ borderTop: '1px solid rgba(239, 235, 230, 0.1)', marginTop: '1.2rem', paddingTop: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ 
+                      fontFamily: 'Jost, sans-serif', 
+                      fontSize: '0.55rem', 
+                      fontWeight: 600, 
+                      letterSpacing: '0.2em', 
+                      textTransform: 'uppercase', 
+                      color: '#A8925A' 
+                    }}>
+                      The Benchmark
+                    </span>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EFEBE6" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"></line>
+                      <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
                   </div>
                 </div>
               </div>
             ))}
+          </React.Fragment>
+        ))}
+            </div>
           </div>
 
           <p
@@ -424,7 +490,7 @@ export default function Home() {
               fontFamily: 'Jost, sans-serif',
               fontSize: '0.5rem',
               letterSpacing: '0.22em',
-              color: '#9A9590',
+              color: 'rgba(239, 235, 230, 0.45)',
               textAlign: 'center',
               textTransform: 'uppercase',
             }}
@@ -433,6 +499,8 @@ export default function Home() {
           </p>
         </div>
       </section>
+
+
 
       {/* ══════════════════════════════════════════
           EDITORIAL BANNER — C&J full-width story
@@ -472,7 +540,7 @@ export default function Home() {
           <div
             key={cat.title}
             className="category-card"
-            onClick={() => scrollTo('collection')}
+            onClick={() => router.push('/collection')}
           >
             <img src={cat.img} alt={cat.title} loading="lazy" />
             <div className="category-card-overlay" />

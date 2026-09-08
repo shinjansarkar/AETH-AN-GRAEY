@@ -45,3 +45,6 @@ next-env.d.ts
 
 /flow.md
 /order_flow.md
+
+# supabase temp
+/supabase/.temp/

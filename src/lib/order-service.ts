@@ -94,9 +94,9 @@ function formatAmount(amountMinor: number, currency: string) {
       currency,
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
-    }).format(amountMinor / 100);
+    }).format(amountMinor);
   } catch {
-    return `${currency} ${(amountMinor / 100).toFixed(2)}`;
+    return `${currency} ${amountMinor.toFixed(2)}`;
   }
 }
 
@@ -189,7 +189,7 @@ async function sendOrderEmails(order: StoredOrder) {
 }
 
 export async function createPendingOrderAndPayment(input: OrderRequestInput, origin?: string) {
-  const amountMinor = toMinorUnits(input.productAmount);
+  const amountMinor = Number(input.productAmount);
   const orderId = generateOrderId();
   const supabase = getSupabaseAdmin();
   const stripe = getStripeClient();
@@ -240,7 +240,7 @@ export async function createPendingOrderAndPayment(input: OrderRequestInput, ori
         quantity: 1,
         price_data: {
           currency: input.currency.toLowerCase(),
-          unit_amount: amountMinor,
+          unit_amount: toMinorUnits(amountMinor),
           product_data: {
             name: input.productName,
             description: `Shoe size ${input.shoeSize}`,
@@ -336,7 +336,7 @@ export async function confirmStripePaymentAndNotify(session: Stripe.Checkout.Ses
     shoeSize: updatedOrder.shoe_size,
     productName: updatedOrder.product_name,
     productHandle: updatedOrder.product_handle ?? '',
-    productAmount: Number(updatedOrder.amount_minor) / 100,
+    productAmount: Number(updatedOrder.amount_minor),
     currency: updatedOrder.currency,
     amountMinor: Number(updatedOrder.amount_minor),
     orderStatus: 'confirmed',
@@ -373,6 +373,7 @@ export type AdminOrder = {
   payment_status: 'pending' | 'paid' | 'failed' | string;
   stripe_checkout_session_id: string | null;
   stripe_payment_intent_id: string | null;
+  transaction_id: string | null;
   created_at: string;
   paid_at: string | null;
   payload: Record<string, unknown> | null;
@@ -407,4 +408,17 @@ export async function getAdminOrders(filter: TimeFilter = 'all') {
   }
 
   return data as unknown as AdminOrder[];
+}
+
+export async function deleteOrder(orderId: string) {
+  const supabase = getSupabaseAdmin();
+  const { error } = await supabase
+    .from(ORDERS_TABLE)
+    .delete()
+    .eq('order_id', orderId);
+
+  if (error) {
+    throw new Error(error.message);
+  }
+  return true;
 }
